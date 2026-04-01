@@ -11,8 +11,6 @@
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue?style=flat&logo=python)](https://python.org/)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat)](LICENSE)
 
-*Built at **LGNSCOE, Nashik** · Department of Computer Engineering · Guided by Prof. R. M. Pandav*
-
 </div>
 
 ---
