@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart City Nashik — नाशिक स्मार्ट सिटी</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --saffron:    #E8650A;
+      --saffron-lt: #F5943A;
+      --gold:       #C9922A;
+      --gold-lt:    #F0C060;
+      --night:      #0E0E18;
+      --ink:        #1A1A2E;
+      --surface:    #16213E;
+      --muted:      #8B8FA8;
+      --white:      #FAF7F2;
+      --cream:      #F5EFE4;
+
+      --teal:       #0F9B8E;
+      --red:        #B33030;
+      --violet:     #5C3D99;
+      --amber:      #D4820A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--night);
+      color: var(--white);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom Cursor ── */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--saffron);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transition: transform 0.15s ease;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid rgba(232,101,10,0.5);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transition: transform 0.08s ease, width 0.2s, height 0.2s, border-color 0.2s;
+    }
+
+    /* ── Noise Texture Overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1;
+      opacity: 0.4;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 6rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    /* Mandala background */
+    .mandala-bg {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px; height: 900px;
+      opacity: 0.04;
+      animation: spin 80s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+    /* Radial glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 20%; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(232,101,10,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.25rem 3rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(14,14,24,0.95), transparent);
+      backdrop-filter: blur(4px);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--saffron-lt);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--saffron);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 900;
+      line-height: 0.95;
+      text-align: center;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.35s forwards;
+    }
+    .hero-title .line-deva {
+      display: block;
+      font-family: 'Noto Sans Devanagari', serif;
+      font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+      color: var(--saffron-lt);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.2em;
+    }
+    .hero-title .line-en {
+      display: block;
+      background: linear-gradient(135deg, var(--white) 30%, var(--gold-lt));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-title .line-sub {
+      display: block;
+      font-size: clamp(1.2rem, 2.5vw, 2rem);
+      font-style: italic;
+      color: var(--gold-lt);
+      opacity: 0.7;
+      margin-top: 0.15em;
+    }
+
+    .hero-desc {
+      max-width: 520px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-top: 1.8rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.5s forwards;
+    }
+
+    .hero-cta {
+      margin-top: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.65s forwards;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: var(--saffron);
+      color: var(--night);
+      font-weight: 500;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+      padding: 0.9rem 2rem;
+      border-radius: 3rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 0 0 rgba(232,101,10,0.4);
+    }
+    .btn-primary:hover {
+      background: var(--saffron-lt);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(232,101,10,0.35);
+    }
+    .btn-primary svg { transition: transform 0.2s; }
+    .btn-primary:hover svg { transform: translateX(3px); }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 1s forwards;
+    }
+    .hero-scroll span {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .scroll-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--saffron), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      position: relative; z-index: 2;
+      display: flex; justify-content: center;
+      gap: 0;
+      background: rgba(255,255,255,0.03);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 2rem 0;
+      overflow: hidden;
+    }
+    .stat-item {
+      flex: 1; max-width: 220px;
+      text-align: center;
+      padding: 0 2rem;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      opacity: 0;
+      animation: fadeUp 0.8s forwards;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item:nth-child(1) { animation-delay: 0.1s; }
+    .stat-item:nth-child(2) { animation-delay: 0.2s; }
+    .stat-item:nth-child(3) { animation-delay: 0.3s; }
+    .stat-item:nth-child(4) { animation-delay: 0.4s; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 700;
+      color: var(--saffron-lt);
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Modules Section ── */
+    .modules-section {
+      position: relative; z-index: 2;
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      display: flex; align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 3.5rem;
+      gap: 2rem;
+    }
+    .section-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--saffron);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--white);
+    }
+    .section-title em {
+      font-style: italic;
+      color: var(--gold-lt);
+    }
+    .section-count {
+      font-size: 4rem;
+      font-family: 'Playfair Display', serif;
+      color: rgba(255,255,255,0.04);
+      font-weight: 900;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    /* ── Module Cards ── */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .module-card {
+      position: relative;
+      border-radius: 20px;
+      padding: 2.5rem;
+      overflow: hidden;
+      cursor: none;
+      text-decoration: none;
+      display: block;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--ink);
+      transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+                  box-shadow 0.35s ease,
+                  border-color 0.3s;
+      opacity: 0;
+      animation: fadeUp 0.7s forwards;
+    }
+    .module-card:nth-child(1) { animation-delay: 0.1s; }
+    .module-card:nth-child(2) { animation-delay: 0.2s; }
+    .module-card:nth-child(3) { animation-delay: 0.3s; }
+    .module-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .module-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    /* Each card gets its own accent color */
+    .module-card.c-saffron { --accent: var(--amber); --accent-glow: rgba(212,130,10,0.15); }
+    .module-card.c-teal    { --accent: var(--teal);  --accent-glow: rgba(15,155,142,0.15); }
+    .module-card.c-red     { --accent: var(--red);   --accent-glow: rgba(179,48,48,0.15);  }
+    .module-card.c-violet  { --accent: var(--violet);--accent-glow: rgba(92,61,153,0.15);  }
+
+    .module-card:hover { box-shadow: 0 20px 60px var(--accent-glow, rgba(0,0,0,0.3)); }
+
+    /* Glow circle bg */
+    .card-glow {
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: var(--accent-glow, transparent);
+      filter: blur(40px);
+      transition: opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .module-card:hover .card-glow { opacity: 1; }
+
+    /* Corner pattern */
+    .card-pattern {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 160px; height: 160px;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+
+    .card-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .card-number::after {
+      content: '';
+      display: block;
+      width: 28px; height: 1px;
+      background: var(--accent);
+    }
+
+    .card-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .module-card:hover .card-icon {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    .card-title-deva {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
+      line-height: 1.3;
+    }
+    .card-title-en {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .card-tags {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      padding: 0.3rem 0.75rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--muted);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .card-arrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      transition: gap 0.2s;
+    }
+    .module-card:hover .card-arrow { gap: 0.85rem; }
+
+    /* ── Full-width feature card (for Crime Reporting — most impactful) ── */
+    .module-card.card-wide {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    .card-wide .card-content { }
+    .card-wide .card-visual {
+      display: flex; align-items: center; justify-content: center;
+      height: 200px;
+    }
+
+    /* Animated process steps inside wide card */
+    .process-steps {
+      display: flex; gap: 1rem; align-items: center;
+    }
+    .step {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.4;
+      position: relative;
+    }
+    .step-icon { font-size: 1.4rem; margin-bottom: 0.4rem; display: block; }
+    .step-arrow {
+      color: rgba(255,255,255,0.15);
+      font-size: 1rem;
+    }
+
+    /* ── How it works ── */
+    .how-section {
+      position: relative; z-index: 2;
+      padding: 5rem 2rem;
+      background: rgba(255,255,255,0.02);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .how-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 3.5rem;
+    }
+    .how-step {
+      text-align: center;
+      position: relative;
+    }
+    .how-step::after {
+      content: '→';
+      position: absolute;
+      right: -1rem; top: 1.5rem;
+      color: rgba(255,255,255,0.12);
+      font-size: 1.2rem;
+    }
+    .how-step:last-child::after { display: none; }
+    .how-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--saffron);
+      color: var(--saffron);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .how-step h4 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--white);
+    }
+    .how-step p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 2;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1200px; margin: 0 auto;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .footer-brand span { color: var(--saffron); }
+    .footer-meta {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.05em;
+    }
+    .footer-badge {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--night); }
+    ::-webkit-scrollbar-thumb { background: var(--saffron); border-radius: 2px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .modules-grid { grid-template-columns: 1fr; }
+      .module-card.card-wide {
+        grid-column: span 1;
+        grid-template-columns: 1fr;
+      }
+      .card-wide .card-visual { display: none; }
+      .how-steps { grid-template-columns: repeat(2, 1fr); }
+      .how-step::after { display: none; }
+      .nav-links { display: none; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .section-count { display: none; }
+      .stats-bar { flex-wrap: wrap; }
+      .stat-item { flex: 0 0 50%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">नाशिक स्मार्ट सिटी</a>
+    <div class="nav-links">
+      <a href="#modules">Modules</a>
+      <a href="#how">How It Works</a>
+      <a href="#">About</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+
+    <!-- Mandala SVG -->
+    <svg class="mandala-bg" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="250" cy="250" r="240" stroke="white" stroke-width="0.5"/>
+      <circle cx="250" cy="250" r="180" stroke="white" stroke-width="0.5"/>
+      <circle cx="250" cy="250" r="120" stroke="white" stroke-width="0.5"/>
+      <circle cx="250" cy="250" r="60" stroke="white" stroke-width="0.5"/>
+      <g stroke="white" stroke-width="0.4">
+        <line x1="250" y1="10" x2="250" y2="490"/>
+        <line x1="10" y1="250" x2="490" y2="250"/>
+        <line x1="80" y1="80" x2="420" y2="420"/>
+        <line x1="420" y1="80" x2="80" y2="420"/>
+        <line x1="30" y1="170" x2="470" y2="330"/>
+        <line x1="30" y1="330" x2="470" y2="170"/>
+        <line x1="170" y1="30" x2="330" y2="470"/>
+        <line x1="330" y1="30" x2="170" y2="470"/>
+      </g>
+      <polygon points="250,30 290,120 390,120 310,180 340,270 250,210 160,270 190,180 110,120 210,120" fill="none" stroke="white" stroke-width="0.4"/>
+    </svg>
+
+    <p class="hero-eyebrow">Nashik Municipal Corporation · Smart City Initiative</p>
+
+    <h1 class="hero-title">
+      <span class="line-deva">नाशिक स्मार्ट सिटी</span>
+      <span class="line-en">Smart City</span>
+      <span class="line-sub">Management Portal</span>
+    </h1>
+
+    <p class="hero-desc">
+      One unified platform for citizens and tourists of Nashik — report civic issues, explore spiritual heritage, and contribute to a safer, smarter city.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#modules" class="btn-primary">
+        Explore Modules
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">4</div>
+      <div class="stat-label">City Modules</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Spiritual Heritage</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Citizen-First</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Reporting Available</div>
+    </div>
+  </div>
+
+  <!-- Modules -->
+  <section class="modules-section" id="modules">
+    <div class="section-header">
+      <div>
+        <p class="section-eyebrow">Four Pillars of Smart Nashik</p>
+        <h2 class="section-title">City Services,<br><em>One Portal.</em></h2>
+      </div>
+      <div class="section-count">04</div>
+    </div>
+
+    <div class="modules-grid">
+
+      <!-- Card 1: Kumbhnagari -->
+      <a href="kumbhnagari/index.html" class="module-card c-saffron">
+        <div class="card-glow"></div>
+        <svg class="card-pattern" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="80" cy="80" r="70" stroke="white" stroke-width="1"/>
+          <circle cx="80" cy="80" r="50" stroke="white" stroke-width="1"/>
+          <circle cx="80" cy="80" r="30" stroke="white" stroke-width="1"/>
+          <line x1="80" y1="10" x2="80" y2="150" stroke="white" stroke-width="0.5"/>
+          <line x1="10" y1="80" x2="150" y2="80" stroke="white" stroke-width="0.5"/>
+          <line x1="30" y1="30" x2="130" y2="130" stroke="white" stroke-width="0.5"/>
+          <line x1="130" y1="30" x2="30" y2="130" stroke="white" stroke-width="0.5"/>
+        </svg>
+
+        <div class="card-number">01</div>
+        <div class="card-icon">🕌</div>
+        <div class="card-title-deva">कुंभनगरी नाशिक</div>
+        <div class="card-title-en">Spiritual & Tourism Hub</div>
+        <p class="card-desc">Discover hotels, lodges, spiritual events, and the mythological importance of Nashik's sacred temples and holy spots for pilgrims and tourists.</p>
+        <div class="card-tags">
+          <span class="tag">Hotels & Lodges</span>
+          <span class="tag">Kumbh Mela</span>
+          <span class="tag">Temples</span>
+          <span class="tag">Spiritual Events</span>
+        </div>
+        <span class="card-arrow">
+          Explore
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </a>
+
+      <!-- Card 2: Citizen Grievance -->
+      <a href="grievance/index.html" class="module-card c-teal">
+        <div class="card-glow"></div>
+        <svg class="card-pattern" viewBox="0 0 160 160" fill="none">
+          <rect x="20" y="20" width="120" height="120" rx="8" stroke="white" stroke-width="1"/>
+          <rect x="45" y="45" width="70" height="70" rx="5" stroke="white" stroke-width="0.8"/>
+          <line x1="20" y1="80" x2="140" y2="80" stroke="white" stroke-width="0.5"/>
+          <line x1="80" y1="20" x2="80" y2="140" stroke="white" stroke-width="0.5"/>
+        </svg>
+
+        <div class="card-number">02</div>
+        <div class="card-icon">📋</div>
+        <div class="card-title-deva">आपले नाशिक आपली जबाबदारी</div>
+        <div class="card-title-en">Citizen Grievance Portal</div>
+        <p class="card-desc">Report garbage overflow, damaged roads, broken streetlights, and dangerous trees with photo evidence. Auto-forwarded to municipal authorities.</p>
+        <div class="card-tags">
+          <span class="tag">Garbage Issues</span>
+          <span class="tag">Road Damage</span>
+          <span class="tag">Streetlights</span>
+          <span class="tag">Dangerous Trees</span>
+        </div>
+        <span class="card-arrow">
+          File a Complaint
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </a>
+
+      <!-- Card 3: Crime Reporting — wide -->
+      <a href="crime/index.html" class="module-card c-red card-wide">
+        <div class="card-glow"></div>
+
+        <div class="card-content">
+          <div class="card-number">03</div>
+          <div class="card-icon">🛡️</div>
+          <div class="card-title-deva">नाशिक जिल्हा कायद्याचा बालेकिल्ला</div>
+          <div class="card-title-en">Crime Reporting Module</div>
+          <p class="card-desc">Safely and confidentially submit photo or video evidence of illegal or suspicious activities. Your identity is protected — law enforcement is notified automatically.</p>
+          <div class="card-tags">
+            <span class="tag">Anonymous Reporting</span>
+            <span class="tag">Photo / Video Upload</span>
+            <span class="tag">Identity Protected</span>
+            <span class="tag">Police Notified</span>
+          </div>
+          <span class="card-arrow">
+            Report Incident
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
+
+        <div class="card-visual">
+          <div class="process-steps">
+            <div class="step">
+              <span class="step-icon">📸</span>
+              Capture Evidence
+            </div>
+            <span class="step-arrow">→</span>
+            <div class="step">
+              <span class="step-icon">📝</span>
+              Describe Incident
+            </div>
+            <span class="step-arrow">→</span>
+            <div class="step">
+              <span class="step-icon">🔒</span>
+              Submit Safely
+            </div>
+            <span class="step-arrow">→</span>
+            <div class="step">
+              <span class="step-icon">👮</span>
+              Police Responds
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 4: Nashik Bhatakanti -->
+      <a href="tourism/index.html" class="module-card c-violet" style="grid-column: span 2;">
+        <div class="card-glow"></div>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start;">
+          <div>
+            <div class="card-number">04</div>
+            <div class="card-icon">🗺️</div>
+            <div class="card-title-deva">नाशिक भटकंती</div>
+            <div class="card-title-en">Tourism Explorer</div>
+            <p class="card-desc">Browse Nashik's best destinations by category — temples, forts, waterfalls, adventure spots, and historical points — with map links and YouTube video guides.</p>
+            <div class="card-tags">
+              <span class="tag">Temples</span>
+              <span class="tag">Forts</span>
+              <span class="tag">Waterfalls</span>
+              <span class="tag">Adventure Spots</span>
+              <span class="tag">Historical Points</span>
+              <span class="tag">Map Links</span>
+            </div>
+            <span class="card-arrow">
+              Start Exploring
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
+          <!-- Mini category tiles -->
+          <div style="display: grid; grid-template-columns: repeat(3, 72px); gap: 0.75rem; padding-top: 2.5rem;">
+            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
+              <div style="font-size:1.4rem;margin-bottom:0.3rem;">⛩️</div>Temples
+            </div>
+            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
+              <div style="font-size:1.4rem;margin-bottom:0.3rem;">🏰</div>Forts
+            </div>
+            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
+              <div style="font-size:1.4rem;margin-bottom:0.3rem;">💧</div>Waterfalls
+            </div>
+            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
+              <div style="font-size:1.4rem;margin-bottom:0.3rem;">🧗</div>Adventure
+            </div>
+            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
+              <div style="font-size:1.4rem;margin-bottom:0.3rem;">🏛️</div>History
+            </div>
+            <div style="background:rgba(92,61,153,0.15);border:1px dashed rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.2);">
+              <div style="font-size:1.4rem;margin-bottom:0.3rem;">＋</div>More
+            </div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-section" id="how">
+    <div class="how-inner">
+      <div>
+        <p class="section-eyebrow">Simple by Design</p>
+        <h2 class="section-title" style="font-size: clamp(1.8rem,3.5vw,2.5rem);">How the Portal <em>Works</em></h2>
+      </div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <h4>Choose a Module</h4>
+          <p>Select from Tourism, Grievance, Crime Reporting, or Travel Guide based on your need.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <h4>Fill the Form</h4>
+          <p>Submit details, photos, or videos. Location capture is built in where needed.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <h4>Secure Submission</h4>
+          <p>Data is sent securely. Crime reports protect your identity completely.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <h4>Authorities Act</h4>
+          <p>Municipal or law enforcement teams receive the report and take action.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">
+      <span>नाशिक</span> Smart City Management Portal
+    </div>
+    <div class="footer-meta">LGNSCOE · Dept. of Computer Engineering · Guided by Prof. R. M. Pandav</div>
+    <div class="footer-badge">MVP v1.0</div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+    });
+
+    // Smooth ring follow
+    (function followRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
+      requestAnimationFrame(followRing);
+    })();
+
+    // Cursor grow on links
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform += ' scale(2)';
+        ring.style.width = '52px';
+        ring.style.height = '52px';
+        ring.style.borderColor = 'rgba(232,101,10,0.8)';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.width = '36px';
+        ring.style.height = '36px';
+        ring.style.borderColor = 'rgba(232,101,10,0.5)';
+      });
+    });
+
+    // Intersection Observer for card animations
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.module-card, .stat-item, .how-step').forEach(el => {
+      el.style.animationPlayState = 'paused';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
