@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏙️ Smart City Nashik
+# Smart City Nashik
 ### नाशिक स्मार्ट सिटी मॅनेजमेंट पोर्टल
 
 **An integrated web portal centralizing civic services, tourism, and safety reporting for the citizens and tourists of Nashik, Maharashtra.**
