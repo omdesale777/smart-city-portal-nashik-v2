@@ -19,16 +19,26 @@ load_dotenv()
 def get_supabase() -> Client:
     """
     Returns a cached Supabase client.
-    Uses the service-role key so the backend can bypass Row Level Security
-    for writes. Never expose this key to the frontend.
+    Supports both old (eyJ...) and new (sb_secret_...) Supabase key formats.
+    Uses service-role/secret key to bypass Row Level Security for backend writes.
+    Never expose this key to the frontend.
     """
-    url  = os.environ.get("SUPABASE_URL")
-    key  = os.environ.get("SUPABASE_SERVICE_KEY")
+    url = os.environ.get("SUPABASE_URL")
+
+    # Support both old service_role key and new sb_secret_ key format
+    key = (
+        os.environ.get("SUPABASE_SERVICE_KEY") or
+        os.environ.get("SUPABASE_SECRET_KEY")
+    )
 
     if not url or not key:
         raise RuntimeError(
-            "Missing SUPABASE_URL or SUPABASE_SERVICE_KEY in environment. "
-            "Check your .env file."
+            "\n\n❌  Missing Supabase credentials in .env file.\n"
+            "    Required variables:\n"
+            "      SUPABASE_URL=https://xxxx.supabase.co\n"
+            "      SUPABASE_SERVICE_KEY=eyJ...  (from Legacy anon/service_role tab)\n"
+            "    OR (new key format):\n"
+            "      SUPABASE_SECRET_KEY=sb_secret_...  (from Secret keys section)\n"
         )
 
     return create_client(url, key)
@@ -67,7 +77,7 @@ CREATE TABLE grievances (
     reporter_name   TEXT,
     reporter_phone  TEXT,
     reporter_email  TEXT,
-    photos          TEXT[],          -- array of Supabase Storage URLs
+    photos          TEXT[],
     status          TEXT NOT NULL DEFAULT 'submitted',
     ticket_id       TEXT UNIQUE,
     created_at      TIMESTAMPTZ DEFAULT now()
@@ -88,8 +98,8 @@ CREATE TABLE crime_reports (
     suspect_count    TEXT,
     suspect_desc     TEXT,
     is_anonymous     BOOLEAN NOT NULL DEFAULT TRUE,
-    reporter_phone   TEXT,           -- null if anonymous
-    media            TEXT[],         -- Supabase Storage URLs
+    reporter_phone   TEXT,
+    media            TEXT[],
     ref_id           TEXT UNIQUE,
     status           TEXT NOT NULL DEFAULT 'received',
     created_at       TIMESTAMPTZ DEFAULT now()
@@ -101,7 +111,7 @@ CREATE TABLE hotels (
     name        TEXT NOT NULL,
     area        TEXT,
     stars       INT CHECK (stars BETWEEN 1 AND 5),
-    price_from  INT,                 -- INR per night
+    price_from  INT,
     phone       TEXT,
     tags        TEXT[],
     website     TEXT,
@@ -125,15 +135,25 @@ CREATE TABLE spiritual_spots (
     created_at  TIMESTAMPTZ DEFAULT now()
 );
 
--- 5. Tourist Spots (Bhatakanti)
+-- 5. Spiritual Events
+CREATE TABLE spiritual_events (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name        TEXT NOT NULL,
+    icon        TEXT,
+    when_text   TEXT,
+    description TEXT,
+    created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+-- 6. Tourist Spots (Bhatakanti)
 CREATE TABLE tourist_spots (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name         TEXT NOT NULL,
-    category     TEXT NOT NULL,    -- fort | waterfall | adventure | nature | history
+    category     TEXT NOT NULL,
     description  TEXT,
     address      TEXT,
     distance_km  INT,
-    difficulty   TEXT,             -- easy | moderate | hard
+    difficulty   TEXT,
     entry_fee    TEXT,
     timings      TEXT,
     image_url    TEXT,
