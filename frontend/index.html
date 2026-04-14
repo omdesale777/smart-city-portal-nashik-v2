@@ -28,31 +28,12 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--night);
       color: var(--white);
       overflow-x: hidden;
-      cursor: none;
-    }
-
-    /* ── Custom Cursor ── */
-    .cursor {
-      width: 10px; height: 10px;
-      background: var(--saffron);
-      border-radius: 50%;
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 9999;
-      transition: transform 0.15s ease;
-    }
-    .cursor-ring {
-      width: 36px; height: 36px;
-      border: 1.5px solid rgba(232,101,10,0.5);
-      border-radius: 50%;
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 9998;
-      transition: transform 0.08s ease, width 0.2s, height 0.2s, border-color 0.2s;
+      
     }
 
     /* ── Noise Texture Overlay ── */
@@ -576,21 +557,63 @@
     ::-webkit-scrollbar-thumb { background: var(--saffron); border-radius: 2px; }
 
     /* ── Responsive ── */
+
+    /* ── Mobile: Homepage ── */
     @media (max-width: 768px) {
-      .modules-grid { grid-template-columns: 1fr; }
-      .module-card.card-wide {
-        grid-column: span 1;
-        grid-template-columns: 1fr;
-      }
-      .card-wide .card-visual { display: none; }
-      .how-steps { grid-template-columns: repeat(2, 1fr); }
-      .how-step::after { display: none; }
+      .nav { padding: .85rem 1.25rem; }
       .nav-links { display: none; }
-      .section-header { flex-direction: column; align-items: flex-start; }
+      .hero { padding: 6rem 1.25rem 3rem; min-height: 100vh; }
+      .hero-title { font-size: clamp(2.8rem, 10vw, 5rem); }
+      .modules-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .module-card.card-wide { grid-column: span 1; grid-template-columns: 1fr; }
+      .card-wide .card-visual { display: none; }
+      .module-card { padding: 1.75rem; border-radius: 16px; }
+      .card-title-en { font-size: 1.25rem; }
+      .card-tags { display: none; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 0; }
       .section-count { display: none; }
+      .section-title { font-size: 1.7rem; }
+      .how-steps { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+      .how-step::after { display: none; }
       .stats-bar { flex-wrap: wrap; }
-      .stat-item { flex: 0 0 50%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .stat-item { flex: 0 0 50%; border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); padding: 1.25rem; }
+      footer { flex-direction: column; text-align: center; gap: .75rem; }
+      .modules-section { padding: 3rem 1.25rem; }
     }
+    @media (max-width: 480px) {
+      .hero-title { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+      .hero-subtitle { font-size: .88rem; }
+      .how-steps { grid-template-columns: 1fr; }
+      .module-card { padding: 1.5rem; }
+      .card-icon { width: 44px; height: 44px; font-size: 1.25rem; }
+    }
+
+    /* ── Custom Cursor ── */
+    @media (pointer: fine) {
+      body { cursor: none; }
+      .cursor {
+        width: 12px; height: 12px;
+        background: var(--saffron);
+        border-radius: 50%;
+        position: fixed; top: 0; left: 0;
+        pointer-events: none; z-index: 9999;
+        box-shadow: 0 0 12px rgba(232,101,10,0.7);
+        will-change: transform;
+      }
+      .cursor-ring {
+        width: 38px; height: 38px;
+        border: 2px solid rgba(232,101,10,0.55);
+        border-radius: 50%;
+        position: fixed; top: 0; left: 0;
+        pointer-events: none; z-index: 9998;
+        transition: width .18s ease, height .18s ease, border-color .18s ease, border-width .18s ease;
+        will-change: transform;
+      }
+    }
+    @media (pointer: coarse) {
+      .cursor, .cursor-ring { display: none !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -894,38 +917,36 @@
   </footer>
 
   <script>
-    // Custom cursor
-    const cursor = document.getElementById('cursor');
-    const ring   = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
-    });
-
-    // Smooth ring follow
-    (function followRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
-      requestAnimationFrame(followRing);
+    // ── Cursor (desktop only) ──
+    (function() {
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+      const dot  = document.getElementById('cursor');
+      const ring = document.getElementById('cursorRing');
+      if (!dot || !ring) return;
+      let mx=0, my=0, rx=0, ry=0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+      }, { passive: true });
+      (function loop() {
+        rx += (mx - rx) * 0.28;
+        ry += (my - ry) * 0.28;
+        ring.style.transform = `translate(${rx - 19}px, ${ry - 19}px)`;
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll('a, button, [role="button"]').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.style.width = '50px'; ring.style.height = '50px';
+          ring.style.borderColor = 'rgba(232,101,10,.9)';
+          ring.style.borderWidth = '2.5px';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.style.width = '38px'; ring.style.height = '38px';
+          ring.style.borderColor = 'rgba(232,101,10,.55)';
+          ring.style.borderWidth = '2px';
+        });
+      });
     })();
-
-    // Cursor grow on links
-    document.querySelectorAll('a, button').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cursor.style.transform += ' scale(2)';
-        ring.style.width = '52px';
-        ring.style.height = '52px';
-        ring.style.borderColor = 'rgba(232,101,10,0.8)';
-      });
-      el.addEventListener('mouseleave', () => {
-        ring.style.width = '36px';
-        ring.style.height = '36px';
-        ring.style.borderColor = 'rgba(232,101,10,0.5)';
-      });
-    });
 
     // Intersection Observer for card animations
     const observer = new IntersectionObserver(entries => {
