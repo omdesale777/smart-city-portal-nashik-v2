@@ -28,13 +28,12 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--cream);
       color: var(--ink);
       overflow-x: hidden;
-      cursor: none;
+      
     }
 
     /* Custom cursor */
@@ -562,26 +561,66 @@
     ::-webkit-scrollbar-thumb { background: var(--amber); border-radius: 2px; }
 
     /* ── Responsive ── */
+
+    /* ── Mobile: Kumbhnagari ── */
     @media (max-width: 960px) {
       .cards-grid { grid-template-columns: repeat(2, 1fr); }
       .card-featured { grid-column: span 2; flex-direction: column; }
-      .card-featured .card-img-wrap { width: 100%; height: 220px; }
+      .card-featured .card-img-wrap { width: 100%; height: 200px; }
       .events-grid { grid-template-columns: repeat(2, 1fr); }
       .hotels-grid { grid-template-columns: repeat(2, 1fr); }
       .modal-info-grid { grid-template-columns: 1fr; }
+      .section { padding: 3rem 1.5rem; }
     }
-    @media (max-width: 640px) {
-      .hero-content { padding: 0 1.5rem 3rem; }
+    @media (max-width: 680px) {
+      .nav { padding: .85rem 1.25rem; }
+      .nav-search { display: none; }
+      .hero { height: 70vh; min-height: 480px; }
+      .hero-content { padding: 0 1.25rem 2.5rem; }
+      .hero-title { font-size: clamp(2.5rem, 9vw, 4.5rem); }
+      .hero-subtitle { font-size: .88rem; }
+      .hero-stats { gap: 1.5rem; }
+      .hero-stat-num { font-size: 1.6rem; }
+      .filter-bar { gap: .35rem; overflow-x: auto; flex-wrap: nowrap; padding-bottom: .5rem; -webkit-overflow-scrolling: touch; }
+      .filter-tab { white-space: nowrap; flex-shrink: 0; padding: .45rem .9rem; font-size: .75rem; }
       .cards-grid { grid-template-columns: 1fr; }
       .card-featured { grid-column: span 1; }
+      .card-img-wrap.tall { height: 200px; }
       .events-grid { grid-template-columns: 1fr; }
       .hotels-grid { grid-template-columns: 1fr; }
-      .filter-bar { gap: .4rem; }
-      .nav-search { display: none; }
+      .section-title { font-size: 1.6rem; }
+      .events-title { font-size: 1.8rem; }
+      .modal { border-radius: 16px; }
+      .modal-img { height: 200px; }
+      .modal-name { font-size: 1.5rem; }
+      .modal-actions { flex-direction: column; }
+      .btn-map, .btn-info { justify-content: center; text-align: center; }
     }
+    @media (max-width: 400px) {
+      .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+      .card-name { font-size: 1.15rem; }
+      .card-desc { font-size: .78rem; }
+      .filter-count { display: none; }
+      .hotel-tags { display: none; }
+    }
+
+    .nav-modules {
+      margin-left: auto;
+      display: flex; gap: .25rem;
+    }
+    .nav-mod-link {
+      font-size: .72rem; font-weight: 500;
+      padding: .35rem .75rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      color: var(--muted);
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .nav-mod-link:hover  { background: rgba(255,255,255,.07); color: var(--white); }
+    .nav-mod-link.active { background: rgba(196,127,23,.15); color: var(--amber-lt); }
   </style>
 </head>
-<script src="kumbhnagari-api.js"></script>
 <body>
 
   <div class="cursor" id="cursor"></div>
@@ -598,6 +637,13 @@
     <div class="nav-search">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       <input type="text" id="searchInput" placeholder="Search places…" oninput="searchCards()"/>
+    </div>
+
+    <div class="nav-modules">
+      <a href="../kumbhnagari/index.html" class="nav-mod-link active">🕌 Spiritual</a>
+      <a href="../grievance/index.html" class="nav-mod-link">📋 Grievance</a>
+      <a href="../crime/index.html" class="nav-mod-link">🛡️ Crime</a>
+      <a href="../tourism/index.html" class="nav-mod-link">🗺️ Travel</a>
     </div>
   </nav>
 
@@ -1099,15 +1145,37 @@
   </div>
 
   <script>
-    // ── Cursor ──
-    const cursor=document.getElementById('cursor'), ring=document.getElementById('cursorRing');
-    let mx=0,my=0,rx=0,ry=0;
-    document.addEventListener('mousemove',e=>{ mx=e.clientX;my=e.clientY; cursor.style.transform=`translate(${mx-4}px,${my-4}px)`; });
-    (function f(){ rx+=(mx-rx)*.12;ry+=(my-ry)*.12; ring.style.transform=`translate(${rx-17}px,${ry-17}px)`; requestAnimationFrame(f); })();
-    document.querySelectorAll('a,button,.place-card,.hotel-card,.event-card,.filter-tab').forEach(el=>{
-      el.addEventListener('mouseenter',()=>{ ring.style.width='44px';ring.style.height='44px';ring.style.borderColor='rgba(196,127,23,.85)'; });
-      el.addEventListener('mouseleave',()=>{ ring.style.width='34px';ring.style.height='34px';ring.style.borderColor='rgba(196,127,23,.5)'; });
-    });
+    
+    // ── Cursor (desktop only — disabled on touch) ──
+    (function() {
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+      const dot  = document.getElementById('cursor');
+      const ring = document.getElementById('cursorRing');
+      if (!dot || !ring) return;
+      let mx=0, my=0, rx=0, ry=0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+      }, { passive: true });
+      (function loop() {
+        rx += (mx - rx) * 0.28;
+        ry += (my - ry) * 0.28;
+        ring.style.transform = `translate(${rx - 19}px, ${ry - 19}px)`;
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll('a, button, .place-card, .filter-tab').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.style.width = '50px'; ring.style.height = '50px';
+          ring.style.borderColor = 'rgba(196,127,23,.9)';
+          ring.style.borderWidth = '2.5px';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.style.width = '38px'; ring.style.height = '38px';
+          ring.style.borderColor = 'rgba(196,127,23,.5)';
+          ring.style.borderWidth = '2px';
+        });
+      });
+    })();
 
     // ── Image fallback ──
     const FALLBACK_COLORS = {

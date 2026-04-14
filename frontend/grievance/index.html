@@ -31,14 +31,13 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--night);
       color: var(--white);
       min-height: 100vh;
       overflow-x: hidden;
-      cursor: none;
+      
     }
 
     /* Cursor */
@@ -626,35 +625,85 @@
     ::-webkit-scrollbar-thumb { background: var(--teal-dk); border-radius: 2px; }
 
     /* ── Mobile ── */
+
+    /* ── Mobile: Grievance Portal ── */
     @media (max-width: 900px) {
       .page { grid-template-columns: 1fr; }
       .sidebar {
-        position: relative; top: 0;
-        height: auto;
-        padding: 2rem 1.5rem;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
+        position: relative; top: 0; height: auto;
+        padding: 1.5rem 1.25rem;
+        border-right: none; border-bottom: 1px solid var(--border);
       }
-      .main { padding: 2rem 1.5rem; }
-      .issue-grid { grid-template-columns: 1fr 1fr; }
+      .sidebar-title { font-size: 1.4rem; }
+      .steps-indicator, .info-box { display: none; }
+      .main { padding: 1.75rem 1.25rem; }
+      .issue-grid { grid-template-columns: 1fr 1fr; gap: .75rem; }
+      .issue-card { padding: 1.1rem; border-radius: 12px; }
+      .issue-card-icon { font-size: 1.6rem; margin-bottom: .5rem; }
+      .issue-card-desc { display: none; }
+      .panel-title { font-size: 1.3rem; }
+      .btn-row { flex-wrap: wrap; }
+      .btn-primary { width: 100%; justify-content: center; }
+      .upload-zone { padding: 1.75rem 1rem; }
+      .severity-row { gap: .5rem; }
     }
     @media (max-width: 540px) {
-      .issue-grid { grid-template-columns: 1fr; }
+      .nav { padding: .85rem 1rem; }
+      .issue-grid { grid-template-columns: 1fr 1fr; }
       .field-row { grid-template-columns: 1fr; }
       .steps-indicator { display: none; }
+      .panel-sub { font-size: .8rem; }
+      .card-actions { flex-direction: column; }
+      .btn-back { width: 100%; text-align: center; }
+      .success-screen { padding: 2rem 0; }
+      .ticket-box { flex-direction: column; gap: .5rem; }
+    }
+    @media (max-width: 400px) {
+      .issue-grid { grid-template-columns: 1fr; }
+      .severity-row { flex-direction: column; }
     }
 
-    /* ── Select custom arrow ── */
-    select {
-      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A8099' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 1rem center;
-      padding-right: 2.5rem;
+    .nav-modules {
+      margin-left: auto;
+      display: flex; gap: .25rem;
     }
-    select option { background: #1A2030; color: #F0EDE8; }
+    .nav-mod-link {
+      font-size: .72rem; font-weight: 500;
+      padding: .35rem .75rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      color: var(--muted);
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .nav-mod-link:hover  { background: rgba(255,255,255,.07); color: var(--white); }
+    .nav-mod-link.active { background: rgba(15,155,142,.15); color: var(--teal-lt); }
+
+    /* ── Geotag styles ── */
+    .geotag-found {
+      background: rgba(15,155,142,.1);
+      border: 1px solid rgba(15,155,142,.3);
+      color: var(--teal-lt);
+    }
+    .geotag-missing {
+      background: rgba(245,158,11,.08);
+      border: 1px solid rgba(245,158,11,.2);
+      color: var(--warn);
+    }
+    .preview-item { position: relative; }
+    .gps-badge {
+      position: absolute; bottom: 3px; left: 3px;
+      font-size: .5rem; padding: 2px 5px;
+      border-radius: 3px; font-weight: 600;
+      letter-spacing: .04em;
+    }
+    .gps-badge.has-gps  { background: rgba(15,155,142,.85); color: #fff; }
+    .gps-badge.no-gps   { background: rgba(0,0,0,.6);       color: rgba(255,255,255,.6); }
+    .location-box.auto-detected { border-color: var(--teal); background: rgba(15,155,142,.05); }
+
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
 </head>
-<script src="grievance-api.js"></script>
 <body>
 
   <div class="cursor" id="cursor"></div>
@@ -670,7 +719,13 @@
     </a>
     <div class="nav-divider"></div>
     <span class="nav-title">आपले नाशिक आपली जबाबदारी</span>
-    <span class="nav-sub">Citizen Grievance Portal</span>
+
+    <div class="nav-modules">
+      <a href="../kumbhnagari/index.html" class="nav-mod-link">🕌 Spiritual</a>
+      <a href="../grievance/index.html" class="nav-mod-link active">📋 Grievance</a>
+      <a href="../crime/index.html" class="nav-mod-link">🛡️ Crime</a>
+      <a href="../tourism/index.html" class="nav-mod-link">🗺️ Travel</a>
+    </div>
   </nav>
 
   <div class="page">
@@ -817,11 +872,12 @@
         <div class="field-group">
           <label>Photo Evidence <span style="color:var(--muted2);text-transform:none;letter-spacing:0;font-size:0.7rem;">(recommended, max 5 photos)</span></label>
           <div class="upload-zone" id="uploadZone">
-            <input type="file" id="photoInput" accept="image/*" multiple onchange="handleFileSelect(event)"/>
+            <input type="file" id="photoInput" accept="image/*" multiple onchange="handleFileSelect(event)" id="photoInput"/>
             <div class="upload-icon">📷</div>
-            <div class="upload-text"><strong>Click to upload</strong> or drag & drop photos here</div>
-            <div class="upload-hint">JPG, PNG, WEBP · Max 5MB per photo</div>
+            <div class="upload-text"><strong>Tap to take photo</strong> or upload from gallery</div>
+            <div class="upload-hint">JPG, PNG, WEBP · Max 5MB · GPS location auto-detected from photo</div>
           </div>
+          <div id="geotag-status" style="display:none; margin-top:.65rem; padding:.5rem .9rem; border-radius:8px; font-size:.76rem; display:none; align-items:center; gap:.5rem;"></div>
           <div class="photo-previews" id="photoPreviews"></div>
         </div>
 
@@ -846,12 +902,15 @@
           <div class="location-box" id="locationBox">
             <span class="loc-icon">📍</span>
             <div class="loc-info">
-              <div class="loc-label">GPS Location</div>
+              <div class="loc-label" id="locLabel">GPS Location</div>
               <div class="loc-value placeholder" id="locValue">Not captured yet</div>
             </div>
             <button class="btn-locate" id="btnLocate" onclick="captureLocation()">
               📡 Get Location
             </button>
+          </div>
+          <div id="geotag-source" style="display:none; margin-top:.5rem; font-size:.72rem; color:var(--teal-lt); display:none; align-items:center; gap:.4rem;">
+            <span>📸</span> <span id="geotagSourceText"></span>
           </div>
         </div>
 
@@ -933,23 +992,37 @@
   </div>
 
   <script>
-    // ── Cursor ──
-    const cursor = document.getElementById('cursor');
-    const ring   = document.getElementById('cursorRing');
-    let mx=0,my=0,rx=0,ry=0;
-    document.addEventListener('mousemove', e => {
-      mx=e.clientX; my=e.clientY;
-      cursor.style.transform = `translate(${mx-4}px,${my-4}px)`;
-    });
-    (function follow(){
-      rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
-      ring.style.transform = `translate(${rx-17}px,${ry-17}px)`;
-      requestAnimationFrame(follow);
+    
+    // ── Cursor (desktop only — disabled on touch) ──
+    (function() {
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+      const dot  = document.getElementById('cursor');
+      const ring = document.getElementById('cursorRing');
+      if (!dot || !ring) return;
+      let mx=0, my=0, rx=0, ry=0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+      }, { passive: true });
+      (function loop() {
+        rx += (mx - rx) * 0.28;
+        ry += (my - ry) * 0.28;
+        ring.style.transform = `translate(${rx - 19}px, ${ry - 19}px)`;
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll('a, button, label, .issue-card, .btn-locate').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.style.width = '50px'; ring.style.height = '50px';
+          ring.style.borderColor = 'rgba(15,155,142,.9)';
+          ring.style.borderWidth = '2.5px';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.style.width = '38px'; ring.style.height = '38px';
+          ring.style.borderColor = 'rgba(15,155,142,.5)';
+          ring.style.borderWidth = '2px';
+        });
+      });
     })();
-    document.querySelectorAll('a,button,label,.issue-card,.btn-locate').forEach(el=>{
-      el.addEventListener('mouseenter',()=>{ ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(15,155,142,.8)'; });
-      el.addEventListener('mouseleave',()=>{ ring.style.width='34px';ring.style.height='34px';ring.style.borderColor='rgba(15,155,142,.5)'; });
-    });
 
     // ── State ──
     let currentStep = 1;
@@ -1033,7 +1106,80 @@
       const toAdd = files.filter(f => f.type.startsWith('image/')).slice(0, remaining);
       uploadedFiles = [...uploadedFiles, ...toAdd];
       renderPreviews();
+      // Try to extract GPS from newly added files
+      toAdd.forEach(file => extractGPSFromPhoto(file));
     }
+
+    // ── GPS EXIF Extraction ──────────────────────────────────────
+    let exifGPSFound = false;
+
+    async function extractGPSFromPhoto(file) {
+      const statusEl  = document.getElementById('geotag-status');
+      const sourceEl  = document.getElementById('geotag-source');
+      const sourceText = document.getElementById('geotagSourceText');
+
+      // Skip if we already have GPS (manual or from previous photo)
+      if (gpsCoords && exifGPSFound) return;
+
+      try {
+        // exifr.gps() returns {latitude, longitude} or undefined
+        const gps = typeof exifr !== 'undefined'
+          ? await exifr.gps(file)
+          : null;
+
+        if (gps && gps.latitude && gps.longitude) {
+          // ✅ GPS found in EXIF
+          exifGPSFound = true;
+          gpsCoords = { lat: gps.latitude, lng: gps.longitude };
+
+          // Auto-fill the location box on Step 3
+          const locVal = document.getElementById('locValue');
+          const locBox = document.getElementById('locationBox');
+          const locLabel = document.getElementById('locLabel');
+          const btn = document.getElementById('btnLocate');
+
+          if (locVal) {
+            locVal.textContent = `${gps.latitude.toFixed(5)}, ${gps.longitude.toFixed(5)}`;
+            locVal.classList.remove('placeholder');
+          }
+          if (locBox) locBox.classList.add('captured', 'auto-detected');
+          if (locLabel) locLabel.textContent = 'GPS Location (from photo)';
+          if (btn) { btn.textContent = '✓ Auto-detected'; btn.style.color = 'var(--success)'; btn.disabled = true; }
+
+          // Show source badge below location box
+          if (sourceEl && sourceText) {
+            sourceText.textContent = `Location auto-detected from "${file.name}"`;
+            sourceEl.style.display = 'flex';
+          }
+
+          // Show green geotag status above previews
+          if (statusEl) {
+            statusEl.className = 'geotag-found';
+            statusEl.style.display = 'flex';
+            statusEl.innerHTML = '📍 <span>GPS location auto-detected from your photo — location field filled automatically</span>';
+          }
+
+          // Mark the specific photo preview with GPS badge
+          renderPreviews();
+
+        } else {
+          // ❌ No GPS in this photo
+          if (!gpsCoords) {
+            if (statusEl) {
+              statusEl.className = 'geotag-missing';
+              statusEl.style.display = 'flex';
+              statusEl.innerHTML = '⚠️ <span>No GPS data found in this photo — please use the location button or enter address manually</span>';
+            }
+          }
+        }
+      } catch (e) {
+        // exifr failed silently — fallback to manual
+        console.warn('EXIF read failed:', e);
+      }
+    }
+
+    // ── Per-photo GPS status map ────────────────────────────────
+    const photoGPSMap = new WeakMap();
 
     function renderPreviews() {
       const container = document.getElementById('photoPreviews');
@@ -1042,13 +1188,43 @@
         const url = URL.createObjectURL(file);
         const div = document.createElement('div');
         div.className = 'preview-item';
-        div.innerHTML = `<img src="${url}" alt="preview"/><button class="remove-btn" onclick="removePhoto(${i})">✕</button>`;
+
+        // GPS badge — check if this file has GPS (async, done separately)
+        const gpsBadge = exifGPSFound
+          ? '<span class="gps-badge has-gps">📍 GPS</span>'
+          : '<span class="gps-badge no-gps">No GPS</span>';
+
+        div.innerHTML = `
+          <img src="${url}" alt="preview"/>
+          <button class="remove-btn" onclick="removePhoto(${i})">✕</button>
+          ${gpsBadge}
+        `;
         container.appendChild(div);
       });
     }
 
     function removePhoto(i) {
+      const removed = uploadedFiles[i];
       uploadedFiles.splice(i, 1);
+
+      // If the photo that had GPS is removed, reset GPS state
+      if (exifGPSFound && uploadedFiles.length === 0) {
+        exifGPSFound = false;
+        gpsCoords = null;
+        const locVal   = document.getElementById('locValue');
+        const locBox   = document.getElementById('locationBox');
+        const locLabel = document.getElementById('locLabel');
+        const btn      = document.getElementById('btnLocate');
+        const sourceEl = document.getElementById('geotag-source');
+        const statusEl = document.getElementById('geotag-status');
+        if (locVal)   { locVal.textContent = 'Not captured yet'; locVal.classList.add('placeholder'); }
+        if (locBox)   { locBox.classList.remove('captured', 'auto-detected'); }
+        if (locLabel) { locLabel.textContent = 'GPS Location'; }
+        if (btn)      { btn.textContent = '📡 Get Location'; btn.style.color = ''; btn.disabled = false; }
+        if (sourceEl) { sourceEl.style.display = 'none'; }
+        if (statusEl) { statusEl.style.display = 'none'; }
+      }
+
       renderPreviews();
     }
 
@@ -1197,6 +1373,16 @@
 
       window.scrollTo({top:0,behavior:'smooth'});
     }
+    // ── Mobile camera: open rear camera directly on phones ──
+    (function() {
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                       window.matchMedia('(pointer: coarse)').matches;
+      if (isMobile) {
+        const inp = document.getElementById('photoInput');
+        if (inp) inp.setAttribute('capture', 'environment');
+      }
+    })();
+
   </script>
 </body>
 </html>

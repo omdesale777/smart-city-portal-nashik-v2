@@ -31,14 +31,13 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--night);
       color: var(--white);
       min-height: 100vh;
       overflow-x: hidden;
-      cursor: none;
+      
     }
 
     /* Cursor */
@@ -586,21 +585,63 @@
     ::-webkit-scrollbar-thumb { background: var(--red-dk); border-radius: 2px; }
 
     /* ── Mobile ── */
+
+    /* ── Mobile: Crime Reporting ── */
     @media (max-width: 900px) {
       .page { grid-template-columns: 1fr; }
-      .sidebar { position: relative; top: 0; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-      .main { padding: 2rem 1.5rem; }
-      .type-grid { grid-template-columns: 1fr 1fr; }
+      .sidebar {
+        position: relative; top: 0; height: auto;
+        padding: 1.5rem 1.25rem;
+        border-right: none; border-bottom: 1px solid var(--border);
+      }
+      .sidebar-title { font-size: 1.4rem; }
+      .steps-indicator, .shield-graphic, .info-box { display: none; }
+      .main { padding: 1.75rem 1.25rem; }
+      .type-grid { grid-template-columns: 1fr 1fr; gap: .75rem; }
+      .type-card { padding: 1.1rem; border-radius: 12px; }
+      .type-icon { font-size: 1.5rem; margin-bottom: .5rem; }
+      .type-desc { display: none; }
+      .urgency-row { gap: .5rem; }
+      .urgency-btn small { display: none; }
+      .panel-title { font-size: 1.3rem; }
+      .btn-row { flex-wrap: wrap; }
+      .btn-primary { width: 100%; justify-content: center; }
+      .anon-toggle-wrap { flex-wrap: wrap; gap: .75rem; }
+      .disclaimer { padding: .9rem 1rem; }
     }
     @media (max-width: 540px) {
-      .type-grid { grid-template-columns: 1fr; }
+      .nav { padding: .85rem 1rem; }
+      .type-grid { grid-template-columns: 1fr 1fr; }
       .field-row { grid-template-columns: 1fr; }
       .urgency-row { flex-direction: column; }
       .steps-indicator { display: none; }
+      .btn-back { width: 100%; text-align: center; }
+      .success-shield { width: 60px; height: 60px; font-size: 1.4rem; }
+      .success-title { font-size: 1.5rem; }
+      .success-actions { flex-direction: column; }
+      .btn-ghost { justify-content: center; }
     }
+    @media (max-width: 400px) {
+      .type-grid { grid-template-columns: 1fr; }
+    }
+
+    .nav-modules {
+      margin-left: auto;
+      display: flex; gap: .25rem;
+    }
+    .nav-mod-link {
+      font-size: .72rem; font-weight: 500;
+      padding: .35rem .75rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      color: var(--muted);
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .nav-mod-link:hover  { background: rgba(255,255,255,.07); color: var(--white); }
+    .nav-mod-link.active { background: rgba(179,48,48,.15); color: var(--red-lt); }
   </style>
 </head>
-<script src="crime-api.js"></script>
 <body>
 
   <div class="cursor" id="cursor"></div>
@@ -619,6 +660,13 @@
     <div class="anon-badge">
       <div class="anon-dot"></div>
       Identity Protected
+    </div>
+
+    <div class="nav-modules">
+      <a href="../kumbhnagari/index.html" class="nav-mod-link">🕌 Spiritual</a>
+      <a href="../grievance/index.html" class="nav-mod-link">📋 Grievance</a>
+      <a href="../crime/index.html" class="nav-mod-link active">🛡️ Crime</a>
+      <a href="../tourism/index.html" class="nav-mod-link">🗺️ Travel</a>
     </div>
   </nav>
 
@@ -960,23 +1008,37 @@
   </div>
 
   <script>
-    // ── Cursor ──
-    const cursor = document.getElementById('cursor');
-    const ring   = document.getElementById('cursorRing');
-    let mx=0,my=0,rx=0,ry=0;
-    document.addEventListener('mousemove', e => {
-      mx=e.clientX; my=e.clientY;
-      cursor.style.transform = `translate(${mx-4}px,${my-4}px)`;
-    });
-    (function follow(){
-      rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
-      ring.style.transform = `translate(${rx-17}px,${ry-17}px)`;
-      requestAnimationFrame(follow);
+    
+    // ── Cursor (desktop only — disabled on touch) ──
+    (function() {
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+      const dot  = document.getElementById('cursor');
+      const ring = document.getElementById('cursorRing');
+      if (!dot || !ring) return;
+      let mx=0, my=0, rx=0, ry=0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+      }, { passive: true });
+      (function loop() {
+        rx += (mx - rx) * 0.28;
+        ry += (my - ry) * 0.28;
+        ring.style.transform = `translate(${rx - 19}px, ${ry - 19}px)`;
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll('a, button, label, .type-card, .urgency-btn').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.style.width = '50px'; ring.style.height = '50px';
+          ring.style.borderColor = 'rgba(179,48,48,.9)';
+          ring.style.borderWidth = '2.5px';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.style.width = '38px'; ring.style.height = '38px';
+          ring.style.borderColor = 'rgba(179,48,48,.45)';
+          ring.style.borderWidth = '2px';
+        });
+      });
     })();
-    document.querySelectorAll('a,button,label,.type-card,.urgency-btn').forEach(el=>{
-      el.addEventListener('mouseenter',()=>{ ring.style.width='48px';ring.style.height='48px';ring.style.borderColor='rgba(179,48,48,.8)'; });
-      el.addEventListener('mouseleave',()=>{ ring.style.width='34px';ring.style.height='34px';ring.style.borderColor='rgba(179,48,48,.45)'; });
-    });
 
     // ── State ──
     let currentStep = 1;

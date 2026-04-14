@@ -32,13 +32,12 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'Outfit', sans-serif;
       background: var(--stone);
       color: var(--off-white);
       overflow-x: hidden;
-      cursor: none;
+      
     }
 
     /* ── CURSOR ── */
@@ -700,6 +699,8 @@
     ::-webkit-scrollbar-thumb { background: var(--forest-lt); border-radius: 2px; }
 
     /* Responsive */
+
+    /* ── Mobile: Bhatakanti ── */
     @media (max-width: 1024px) {
       .bento-3 { grid-template-columns: repeat(2, 1fr); }
       .bento-4 { grid-template-columns: repeat(2, 1fr); }
@@ -708,20 +709,68 @@
       .tips-grid { grid-template-columns: repeat(2, 1fr); }
       .reach-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    @media (max-width: 640px) {
-      .hero-content { padding: 0 1.5rem 3.5rem; }
-      .bento-3, .bento-4, .bento-mixed { grid-template-columns: 1fr; }
-      .hero-title { font-size: clamp(3.5rem,14vw,5rem); }
+    @media (max-width: 768px) {
+      .nav { padding: .85rem 1.25rem; height: auto; min-height: 56px; }
       .nav-search-box { display: none; }
       .nav-mode-toggle { display: none; }
-      .tips-grid { grid-template-columns: 1fr; }
+      .hero { height: 85vh; min-height: 520px; }
+      .hero-content { padding: 0 1.25rem 3rem; }
+      .hero-title { font-size: clamp(3rem, 11vw, 5.5rem); }
+      .hero-sub { font-size: .88rem; }
+      .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+      .h-stat-num { font-size: 1.8rem; }
+      .cat-strip { top: 56px; }
+      .cat-inner { padding: 0 1rem; }
+      .cat-btn { padding: .85rem 1rem; font-size: .78rem; }
+      .content-area { padding: 2.5rem 1.25rem; }
+      .cat-section-header { flex-wrap: wrap; gap: .75rem; }
+      .cat-section-title { font-size: 1.6rem; }
+      .bento-3, .bento-4, .bento-mixed { grid-template-columns: 1fr; }
+      .bento-mixed .span-col { grid-column: 1; }
+      .card-img-box.tall { height: 220px; }
+      .card-img-box.mid { height: 180px; }
+      .card-name { font-size: 1.2rem; }
+      .card-actions { flex-wrap: wrap; }
+      .tips-grid { grid-template-columns: 1fr 1fr; }
       .reach-grid { grid-template-columns: 1fr; }
-      .list-img, .list-img-fallback { width: 120px; }
+      .list-card { flex-direction: column; }
+      .list-img { width: 100%; height: 160px; }
+      .list-img-fallback { width: 100%; height: 120px; }
+      .list-meta { flex-direction: row; justify-content: space-between; padding: 0 1.5rem 1.5rem; }
+      .modal { border-radius: 16px; max-height: 95vh; }
+      .modal-hero { height: 200px; }
+      .modal-title { font-size: 1.6rem; }
       .modal-facts { grid-template-columns: 1fr; }
+      .modal-actions { flex-direction: column; }
+      .saved-fab { bottom: 1.25rem; right: 1.25rem; padding: .65rem 1.2rem; font-size: .78rem; }
+      .hero-cta-row { flex-direction: column; align-items: flex-start; }
+      .btn-explore, .btn-ghost { width: 100%; justify-content: center; }
     }
+    @media (max-width: 480px) {
+      .hero-title { font-size: clamp(2.5rem, 10vw, 4rem); }
+      .hero-dots { bottom: 1.25rem; right: 1.25rem; }
+      .tips-grid { grid-template-columns: 1fr; }
+      .cat-count { display: none; }
+      .card-desc { font-size: .78rem; }
+    }
+
+    .nav-modules {
+      margin-left: auto;
+      display: flex; gap: .25rem;
+    }
+    .nav-mod-link {
+      font-size: .72rem; font-weight: 500;
+      padding: .35rem .75rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      color: var(--muted);
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .nav-mod-link:hover  { background: rgba(255,255,255,.07); color: var(--white); }
+    .nav-mod-link.active { background: rgba(42,112,80,.15); color: var(--sage); }
   </style>
 </head>
-<script src="tourism-api.js"></script>
 <body>
 
 <div class="cursor" id="cursor"></div>
@@ -746,6 +795,12 @@
       <button class="mode-btn" id="btnList" onclick="setView('list')">☰ List</button>
     </div>
   </div>
+    <div class="nav-modules">
+      <a href="../kumbhnagari/index.html" class="nav-mod-link">🕌 Spiritual</a>
+      <a href="../grievance/index.html" class="nav-mod-link">📋 Grievance</a>
+      <a href="../crime/index.html" class="nav-mod-link">🛡️ Crime</a>
+      <a href="../tourism/index.html" class="nav-mod-link active">🗺️ Travel</a>
+    </div>
 </nav>
 
 <!-- ── HERO (Slideshow) ── -->
@@ -1340,17 +1395,39 @@
 </div>
 
 <script>
-  // ── Cursor ──
-  const cur=document.getElementById('cursor'), ring=document.getElementById('cursorRing');
-  let mx=0,my=0,rx=0,ry=0;
-  document.addEventListener('mousemove',e=>{ mx=e.clientX;my=e.clientY; cur.style.transform=`translate(${mx-5}px,${my-5}px)`; });
-  (function f(){ rx+=(mx-rx)*.12;ry+=(my-ry)*.12; ring.style.transform=`translate(${rx-18}px,${ry-18}px)`; requestAnimationFrame(f); })();
-  document.querySelectorAll('a,button,.place-card,.cat-btn').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{ ring.style.width='46px';ring.style.height='46px';ring.style.borderColor='rgba(42,112,80,.9)'; });
-    el.addEventListener('mouseleave',()=>{ ring.style.width='36px';ring.style.height='36px';ring.style.borderColor='rgba(42,112,80,.5)'; });
-  });
+  
+    // ── Cursor (desktop only — disabled on touch) ──
+    (function() {
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+      const dot  = document.getElementById('cursor');
+      const ring = document.getElementById('cursorRing');
+      if (!dot || !ring) return;
+      let mx=0, my=0, rx=0, ry=0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+      }, { passive: true });
+      (function loop() {
+        rx += (mx - rx) * 0.28;
+        ry += (my - ry) * 0.28;
+        ring.style.transform = `translate(${rx - 19}px, ${ry - 19}px)`;
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll('a, button, .place-card, .cat-btn').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.style.width = '50px'; ring.style.height = '50px';
+          ring.style.borderColor = 'rgba(42,112,80,.9)';
+          ring.style.borderWidth = '2.5px';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.style.width = '38px'; ring.style.height = '38px';
+          ring.style.borderColor = 'rgba(42,112,80,.5)';
+          ring.style.borderWidth = '2px';
+        });
+      });
+    })();
 
-  // ── Hero Slideshow ──
+    // ── Hero Slideshow ──
   let slide=0;
   const slides=document.querySelectorAll('.hero-slide');
   const dots=document.querySelectorAll('.hero-dot');
@@ -1508,7 +1585,7 @@
   // ── Modal Data ──
   const MODALS = {
     harihar:{ cat:'Fort · Hard Trek · Nashik District', title:'HARIHAR FORT',
-      img:'https://commons.wikimedia.org/wiki/Special:FilePath/Harihar_Fort_Maharashtra.jpg',
+      img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Hariharfort.jpg/1280px-Hariharfort.jpg',
       about:'Harihar Fort (also known as Harshagad) is widely considered the most thrilling fort trek in all of Maharashtra. The fort is famous for its near-vertical rock-cut steps carved into the cliff face at approximately 80° — requiring hands and feet both for ascent. These 117 steps are the defining feature of the trek and demand complete focus. The fort stands at 3,676 ft above sea level near Nirgudpada village, 40 km from Nashik. At the summit, the panoramic view of the Sahyadri ranges is breathtaking — you can spot Brahmagiri, Anjaneri, and multiple other peaks. The fort has remnants of a cistern, a small cave-temple, and ramparts.',
       facts:[{l:'Location',v:'Nirgudpada village, 40 km from Nashik'},{l:'Difficulty',v:'Hard — near-vertical rock-cut steps'},{l:'Trek Duration',v:'4–5 hours round trip'},{l:'Best Season',v:'October to February (avoid monsoon for steep steps)'},{l:'Altitude',v:'3,676 ft (1,120 m)'},{l:'Entry Fee',v:'Free'}],
       map:'https://maps.google.com/?q=Harihar+Fort+Nashik', yt:'https://www.youtube.com/results?search_query=Harihar+Fort+Trek+Nashik' },
