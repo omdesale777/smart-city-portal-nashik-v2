@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Police Dashboard · Smart City Nashik</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:     #B33030;
+      --red-lt:  #D94040;
+      --red-dk:  #8A2020;
+      --night:   #0C0F14;
+      --ink:     #0F1520;
+      --surface: #131820;
+      --surface2:#1A2030;
+      --border:  rgba(255,255,255,0.07);
+      --muted:   #7A8099;
+      --muted2:  #505570;
+      --white:   #F0EDE8;
+      --success: #22C55E;
+      --warn:    #F59E0B;
+      --danger:  #EF4444;
+      --info:    #3B82F6;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--night); color: var(--white); min-height: 100vh; }
+
+    .topnav {
+      background: var(--ink); border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; gap: 1rem;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: .7rem; font-weight: 600; font-size: .9rem; }
+    .nav-logo-icon {
+      width: 32px; height: 32px;
+      background: rgba(179,48,48,.15); border: 1px solid rgba(179,48,48,.3);
+      border-radius: 8px; display: grid; place-items: center; font-size: .95rem;
+    }
+    .nav-badge {
+      font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+      background: rgba(179,48,48,.15); border: 1px solid rgba(179,48,48,.3);
+      color: var(--red-lt); border-radius: 2rem; padding: .2rem .65rem;
+    }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+    .nav-user { font-size: .8rem; color: var(--muted); }
+    .nav-user span { color: var(--white); font-weight: 500; }
+    .btn-logout {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); font-size: .78rem; padding: .4rem .9rem;
+      border-radius: 2rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s;
+    }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    .layout { display: flex; min-height: calc(100vh - 60px); }
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: var(--ink); border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: .25rem;
+    }
+    .sidebar-label { font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted2); padding: .5rem .75rem; margin-top: 1rem; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .65rem .75rem; border-radius: 8px;
+      font-size: .85rem; color: var(--muted); cursor: pointer; transition: all .2s;
+      border: none; background: none; width: 100%; text-align: left; font-family: 'DM Sans', sans-serif;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.04); color: var(--white); }
+    .nav-item.active { background: rgba(179,48,48,.12); color: var(--red-lt); }
+    .nav-item .count { margin-left: auto; font-size: .68rem; background: rgba(255,255,255,.08); border-radius: 2rem; padding: .1rem .45rem; }
+
+    .main { flex: 1; padding: 2rem; overflow-x: auto; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .stat-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--white); line-height: 1; }
+    .stat-sub { font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+    .stat-card.s-red    .stat-value { color: var(--red-lt); }
+    .stat-card.s-warn   .stat-value { color: var(--warn); }
+    .stat-card.s-green  .stat-value { color: var(--success); }
+    .stat-card.s-danger .stat-value { color: var(--danger); }
+
+    .filter-bar { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .filter-bar select, .filter-bar input {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--white); border-radius: 8px; padding: .55rem .9rem;
+      font-size: .82rem; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--red-lt); }
+    .filter-bar select option { background: #131820; }
+    .btn-refresh {
+      background: rgba(179,48,48,.12); border: 1px solid rgba(179,48,48,.25);
+      color: var(--red-lt); border-radius: 8px; padding: .55rem 1rem;
+      font-size: .82rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .2s;
+    }
+    .btn-refresh:hover { background: rgba(179,48,48,.22); }
+    .filter-count { font-size: .78rem; color: var(--muted); margin-left: auto; }
+
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); }
+    th {
+      text-align: left; padding: .85rem 1rem; font-size: .68rem;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+      font-weight: 500; white-space: nowrap; border-bottom: 1px solid var(--border);
+    }
+    td { padding: .9rem 1rem; font-size: .82rem; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    .badge { display: inline-block; padding: .22rem .75rem; border-radius: 2rem; font-size: .68rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+    .badge-received      { background: rgba(59,130,246,.15);  color: #93C5FD; border: 1px solid rgba(59,130,246,.3); }
+    .badge-under_review  { background: rgba(245,158,11,.15);  color: #FCD34D; border: 1px solid rgba(245,158,11,.3); }
+    .badge-investigating { background: rgba(179,48,48,.15);   color: #FCA5A5; border: 1px solid rgba(179,48,48,.3); }
+    .badge-closed        { background: rgba(34,197,94,.15);   color: #86EFAC; border: 1px solid rgba(34,197,94,.3); }
+    .badge-rejected      { background: rgba(100,100,100,.15); color: #aaa;    border: 1px solid rgba(100,100,100,.3); }
+
+    .urgency-high   { color: var(--danger); font-weight: 700; }
+    .urgency-medium { color: var(--warn); font-weight: 500; }
+    .urgency-low    { color: var(--success); }
+
+    .anon-badge { font-size: .65rem; background: rgba(59,130,246,.1); color: #93C5FD; border: 1px solid rgba(59,130,246,.25); border-radius: 2rem; padding: .15rem .5rem; }
+    .ref { font-family: monospace; font-size: .78rem; color: var(--red-lt); }
+
+    .status-select {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--white); border-radius: 6px; padding: .35rem .6rem;
+      font-size: .75rem; font-family: 'DM Sans', sans-serif; cursor: pointer; outline: none;
+    }
+    .status-select:focus { border-color: var(--red-lt); }
+    .status-select option { background: #1A2030; }
+
+    .table-state { text-align: center; padding: 4rem 2rem; color: var(--muted); font-size: .88rem; }
+    .table-state .icon { font-size: 2rem; margin-bottom: .75rem; }
+
+    /* Drawer */
+    .drawer-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(12,15,20,.8); backdrop-filter: blur(6px); display: none; }
+    .drawer-overlay.open { display: block; animation: fadeIn .2s; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 460px; max-width: 95vw;
+      background: var(--surface); border-left: 1px solid var(--border);
+      padding: 2rem; overflow-y: auto;
+      animation: slideIn .25s ease; z-index: 501;
+    }
+    @keyframes slideIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
+    .drawer-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: rgba(255,255,255,.06); border: 1px solid var(--border);
+      color: var(--white); border-radius: 50%; width: 32px; height: 32px;
+      display: grid; place-items: center; cursor: pointer; font-size: .85rem; transition: background .2s;
+    }
+    .drawer-close:hover { background: rgba(255,255,255,.12); }
+    .drawer-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; padding-right: 2.5rem; }
+    .drawer-field { margin-bottom: 1.1rem; }
+    .drawer-label { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .3rem; }
+    .drawer-val { font-size: .88rem; color: var(--white); line-height: 1.55; }
+    .drawer-divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+    .drawer-status-wrap { display: flex; gap: .75rem; align-items: center; margin-top: 1.5rem; }
+    .btn-update-status {
+      flex: 1; padding: .75rem; background: var(--red-lt); color: #fff;
+      font-weight: 600; font-size: .88rem; border: none; border-radius: 8px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .2s;
+    }
+    .btn-update-status:hover { background: var(--red); }
+
+    /* Media thumbnails */
+    .media-grid { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+    .media-thumb { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); cursor: pointer; }
+    .video-thumb { width: 80px; height: 80px; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,.05); display: flex; align-items: center; justify-content: center; flex-direction: column; font-size: 1.4rem; cursor: pointer; font-size: .65rem; gap: .25rem; color: var(--muted); }
+
+    /* Confidential banner */
+    .confidential-banner {
+      background: rgba(179,48,48,.08); border: 1px solid rgba(179,48,48,.2);
+      border-radius: 8px; padding: .75rem 1rem;
+      font-size: .78rem; color: #FCA5A5; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); border-radius: 2rem; padding: .65rem 1.5rem; font-size: .82rem; z-index: 600; opacity: 0; transition: all .3s; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(34,197,94,.4); color: #86EFAC; }
+    .toast.error   { border-color: rgba(239,68,68,.4);  color: #FCA5A5; }
+
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .sidebar { display: none; } }
+    @media (max-width: 640px) { .main { padding: 1.25rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .75rem; } .topnav { padding: 0 1.25rem; } .nav-user { display: none; } th:nth-child(n+5), td:nth-child(n+5) { display: none; } }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">👮</div>
+      Police Admin
+    </div>
+    <span class="nav-badge">Crime Reports</span>
+    <div class="nav-right">
+      <div class="nav-user">Signed in as <span id="navUsername">—</span></div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <span class="sidebar-label">Navigation</span>
+      <button class="nav-item active">🛡️ All Reports <span class="count" id="sideCount">—</span></button>
+      <span class="sidebar-label">Filter by Status</span>
+      <button class="nav-item" onclick="applyFilter('received')">🔵 Received</button>
+      <button class="nav-item" onclick="applyFilter('under_review')">🟡 Under Review</button>
+      <button class="nav-item" onclick="applyFilter('investigating')">🔴 Investigating</button>
+      <button class="nav-item" onclick="applyFilter('closed')">🟢 Closed</button>
+      <button class="nav-item" onclick="applyFilter('')">🌍 All</button>
+      <span class="sidebar-label">Filter by Urgency</span>
+      <button class="nav-item" onclick="applyUrgency('high')">🔴 High / Ongoing</button>
+      <button class="nav-item" onclick="applyUrgency('medium')">🟡 Moderate</button>
+      <button class="nav-item" onclick="applyUrgency('low')">🟢 Not Urgent</button>
+      <span class="sidebar-label">Links</span>
+      <button class="nav-item" onclick="window.open('../../index.html')">🏠 Main Portal</button>
+    </aside>
+
+    <main class="main">
+      <div class="stats-grid">
+        <div class="stat-card s-red">
+          <div class="stat-label">Total Reports</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card s-danger">
+          <div class="stat-label">High Urgency</div>
+          <div class="stat-value" id="statHigh">—</div>
+          <div class="stat-sub">Ongoing incidents</div>
+        </div>
+        <div class="stat-card s-warn">
+          <div class="stat-label">Under Review</div>
+          <div class="stat-value" id="statReview">—</div>
+          <div class="stat-sub">Being investigated</div>
+        </div>
+        <div class="stat-card s-green">
+          <div class="stat-label">Closed</div>
+          <div class="stat-value" id="statClosed">—</div>
+          <div class="stat-sub">Resolved cases</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <select id="filterStatus" onchange="loadData()">
+          <option value="">All Statuses</option>
+          <option value="received">Received</option>
+          <option value="under_review">Under Review</option>
+          <option value="investigating">Investigating</option>
+          <option value="closed">Closed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <select id="filterUrgency" onchange="loadData()">
+          <option value="">All Urgency</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select id="filterType" onchange="loadData()">
+          <option value="">All Types</option>
+          <option value="theft">Theft / Robbery</option>
+          <option value="harassment">Harassment</option>
+          <option value="drugs">Drug / Illegal</option>
+          <option value="assault">Physical Assault</option>
+          <option value="suspicious">Suspicious Activity</option>
+          <option value="other">Other</option>
+        </select>
+        <input type="text" id="filterSearch" placeholder="Search by ref ID or description…" oninput="filterTable()" style="min-width:200px;"/>
+        <button class="btn-refresh" onclick="loadData()">↻ Refresh</button>
+        <span class="filter-count" id="filterCount"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ref ID</th>
+              <th>Type</th>
+              <th>Summary</th>
+              <th>Urgency</th>
+              <th>Location</th>
+              <th>Anon</th>
+              <th>Reported</th>
+              <th>Status</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="9"><div class="table-state"><div class="icon">⏳</div>Loading reports…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Drawer -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer" style="display:none;">
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <div class="confidential-banner">🔒 CONFIDENTIAL — Nashik District Police. Handle with care.</div>
+    <div class="drawer-title" id="drawerTitle">Crime Report Details</div>
+
+    <div class="drawer-field"><div class="drawer-label">Reference ID</div><div class="drawer-val ref" id="dRef"></div></div>
+    <div class="drawer-field"><div class="drawer-label">Incident Type</div><div class="drawer-val" id="dType"></div></div>
+    <div class="drawer-field"><div class="drawer-label">Urgency</div><div class="drawer-val" id="dUrgency"></div></div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-field"><div class="drawer-label">Description</div><div class="drawer-val" id="dDesc"></div></div>
+    <div class="drawer-field"><div class="drawer-label">Suspect Count</div><div class="drawer-val" id="dSuspectCount"></div></div>
+    <div class="drawer-field"><div class="drawer-label">Suspect Description</div><div class="drawer-val" id="dSuspectDesc"></div></div>
+    <div class="drawer-field"><div class="drawer-label">Incident Time</div><div class="drawer-val" id="dIncidentTime"></div></div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-field"><div class="drawer-label">Location</div><div class="drawer-val" id="dAddress"></div></div>
+    <div class="drawer-field"><div class="drawer-label">GPS Coordinates</div><div class="drawer-val" id="dGPS"></div></div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-field"><div class="drawer-label">Reporter</div><div class="drawer-val" id="dReporter"></div></div>
+    <div class="drawer-field"><div class="drawer-label">Evidence Media</div><div class="media-grid" id="dMedia"></div></div>
+    <div class="drawer-field"><div class="drawer-label">Submitted</div><div class="drawer-val" id="dDate"></div></div>
+
+    <div class="drawer-status-wrap">
+      <select class="status-select" id="drawerStatusSelect" style="flex:1;">
+        <option value="received">Received</option>
+        <option value="under_review">Under Review</option>
+        <option value="investigating">Investigating</option>
+        <option value="closed">Closed</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <button class="btn-update-status" onclick="updateStatusFromDrawer()">Update Status</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000'; // ← change to Render URL on deploy
+    let allData = [];
+    let currentDrawerId = null;
+
+    // Auth guard
+    const token    = localStorage.getItem('police_token');
+    const username = localStorage.getItem('police_username');
+    const expires  = localStorage.getItem('police_expires');
+    if (!token || Date.now() > Number(expires)) { localStorage.removeItem('police_token'); window.location.href = 'login.html'; }
+    document.getElementById('navUsername').textContent = username || '—';
+
+    function logout() {
+      ['police_token','police_username','police_expires'].forEach(k => localStorage.removeItem(k));
+      window.location.href = 'login.html';
+    }
+    function authHeaders() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
+
+    async function loadData() {
+      const status      = document.getElementById('filterStatus').value;
+      const urgency     = document.getElementById('filterUrgency').value;
+      const incidentType= document.getElementById('filterType').value;
+      let url = `${API_BASE}/api/admin/crime-reports?limit=200`;
+      if (status)       url += `&status_filter=${status}`;
+      if (urgency)      url += `&urgency=${urgency}`;
+      if (incidentType) url += `&incident_type=${incidentType}`;
+      try {
+        const res  = await fetch(url, { headers: authHeaders() });
+        if (res.status === 401) { logout(); return; }
+        const json = await res.json();
+        allData = json.data || [];
+        renderTable(allData);
+        updateStats(allData);
+        document.getElementById('sideCount').textContent = allData.length;
+      } catch (err) { showToast('Failed to load: ' + err.message, 'error'); }
+    }
+
+    function updateStats(data) {
+      document.getElementById('statTotal').textContent  = data.length;
+      document.getElementById('statHigh').textContent   = data.filter(r => r.urgency  === 'high').length;
+      document.getElementById('statReview').textContent = data.filter(r => ['under_review','investigating'].includes(r.status)).length;
+      document.getElementById('statClosed').textContent = data.filter(r => r.status === 'closed').length;
+    }
+
+    const TYPE_LABELS = { theft:'🔓 Theft', harassment:'🚨 Harassment', drugs:'💊 Drugs', assault:'⚠️ Assault', suspicious:'👁️ Suspicious', other:'📌 Other' };
+
+    function renderTable(data) {
+      const tbody = document.getElementById('tableBody');
+      document.getElementById('filterCount').textContent = `${data.length} record${data.length!==1?'s':''}`;
+      if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="table-state"><div class="icon">📭</div>No reports found</div></td></tr>`; return; }
+      tbody.innerHTML = data.map(r => `
+        <tr style="cursor:pointer;" onclick="openDrawer('${r.id}')">
+          <td><span class="ref">${r.ref_id || r.id.slice(0,8)}</span></td>
+          <td>${TYPE_LABELS[r.incident_type] || r.incident_type}</td>
+          <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.title)}">${esc(r.title)}</td>
+          <td><span class="urgency-${r.urgency}">${(r.urgency||'').toUpperCase()}</span></td>
+          <td style="font-size:.78rem;color:var(--muted);">${esc(r.ward || r.address?.split(',')[0] || '—')}</td>
+          <td>${r.is_anonymous ? '<span class="anon-badge">🔒 Anon</span>' : '<span style="font-size:.75rem;color:var(--muted)">Named</span>'}</td>
+          <td style="font-size:.75rem;color:var(--muted);">${fmtDate(r.created_at)}</td>
+          <td><span class="badge badge-${r.status}">${(r.status||'').replace('_',' ')}</span></td>
+          <td onclick="event.stopPropagation()">
+            <select class="status-select" onchange="quickUpdate('${r.id}', this.value)">
+              ${['received','under_review','investigating','closed','rejected'].map(s =>
+                `<option value="${s}" ${r.status===s?'selected':''}>${s.replace('_',' ')}</option>`
+              ).join('')}
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterTable() {
+      const q = document.getElementById('filterSearch').value.toLowerCase().trim();
+      const filtered = !q ? allData : allData.filter(r =>
+        (r.ref_id||'').toLowerCase().includes(q) ||
+        (r.title||'').toLowerCase().includes(q) ||
+        (r.description||'').toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    }
+
+    function applyFilter(s)  { document.getElementById('filterStatus').value = s; loadData(); }
+    function applyUrgency(u) { document.getElementById('filterUrgency').value = u; loadData(); }
+
+    async function quickUpdate(id, newStatus) {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/crime-reports/${id}`, {
+          method: 'PATCH', headers: authHeaders(),
+          body: JSON.stringify({ status: newStatus }),
+        });
+        if (!res.ok) throw new Error((await res.json()).detail);
+        const row = allData.find(r => r.id === id);
+        if (row) row.status = newStatus;
+        showToast(`✅ Status → "${newStatus.replace('_',' ')}"`, 'success');
+        filterTable();
+      } catch (err) { showToast('Update failed: ' + err.message, 'error'); }
+    }
+
+    function openDrawer(id) {
+      const r = allData.find(x => x.id === id);
+      if (!r) return;
+      currentDrawerId = id;
+      document.getElementById('drawerTitle').textContent   = r.title || 'Crime Report';
+      document.getElementById('dRef').textContent          = r.ref_id || r.id;
+      document.getElementById('dType').textContent         = TYPE_LABELS[r.incident_type] || r.incident_type;
+      document.getElementById('dUrgency').innerHTML        = `<span class="urgency-${r.urgency}">${(r.urgency||'').toUpperCase()}</span>`;
+      document.getElementById('dDesc').textContent         = r.description || '—';
+      document.getElementById('dSuspectCount').textContent = r.suspect_count || '—';
+      document.getElementById('dSuspectDesc').textContent  = r.suspect_desc  || '—';
+      document.getElementById('dIncidentTime').textContent = r.incident_time ? new Date(r.incident_time).toLocaleString('en-IN') : '—';
+      document.getElementById('dAddress').textContent      = r.address || '—';
+      document.getElementById('dGPS').textContent          = r.gps_lat ? `${r.gps_lat}, ${r.gps_lng}` : 'Not available';
+      document.getElementById('dReporter').innerHTML       = r.is_anonymous
+        ? '<span class="anon-badge">🔒 Anonymous — identity protected</span>'
+        : (r.reporter_phone || '—');
+      document.getElementById('drawerStatusSelect').value  = r.status;
+
+      // Media
+      const mediaWrap = document.getElementById('dMedia');
+      if (r.media && r.media.length) {
+        mediaWrap.innerHTML = r.media.map(url =>
+          url.match(/\.(mp4|mov|avi)$/i)
+            ? `<div class="video-thumb" onclick="window.open('${url}')">🎥<span>Video</span></div>`
+            : `<img class="media-thumb" src="${url}" alt="evidence" onclick="window.open('${url}')" />`
+        ).join('');
+      } else { mediaWrap.innerHTML = '<span style="font-size:.78rem;color:var(--muted);">No media attached</span>'; }
+
+      document.getElementById('dDate').textContent = new Date(r.created_at).toLocaleString('en-IN');
+      document.getElementById('drawer').style.display = 'block';
+      document.getElementById('drawerOverlay').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').style.display = 'none';
+      document.getElementById('drawerOverlay').classList.remove('open');
+      currentDrawerId = null;
+    }
+
+    async function updateStatusFromDrawer() {
+      if (!currentDrawerId) return;
+      await quickUpdate(currentDrawerId, document.getElementById('drawerStatusSelect').value);
+      closeDrawer();
+    }
+
+    function fmtDate(iso) { if (!iso) return '—'; return new Date(iso).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}); }
+    function esc(s) { return s ? String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;') : '—'; }
+
+    let toastTimer;
+    function showToast(msg, type='') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = `toast ${type} show`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
