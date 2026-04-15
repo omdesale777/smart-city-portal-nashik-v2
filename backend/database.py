@@ -9,10 +9,16 @@ Usage in any router:
 
 import os
 from functools import lru_cache
-from dotenv import load_dotenv
-from supabase import create_client, Client
+from pathlib import Path
 
-load_dotenv()
+from dotenv import load_dotenv
+from supabase import Client, create_client
+
+BASE_DIR = Path(__file__).resolve().parent
+
+# Load .env.local first so it overrides any older .env values
+load_dotenv(BASE_DIR / ".env.local", override=True)
+load_dotenv(BASE_DIR / ".env", override=False)
 
 
 @lru_cache(maxsize=1)
@@ -27,18 +33,18 @@ def get_supabase() -> Client:
 
     # Support both old service_role key and new sb_secret_ key format
     key = (
-        os.environ.get("SUPABASE_SERVICE_KEY") or
-        os.environ.get("SUPABASE_SECRET_KEY")
+        os.environ.get("SUPABASE_SERVICE_KEY")
+        or os.environ.get("SUPABASE_SECRET_KEY")
     )
 
     if not url or not key:
         raise RuntimeError(
-            "\n\n❌  Missing Supabase credentials in .env file.\n"
-            "    Required variables:\n"
-            "      SUPABASE_URL=https://xxxx.supabase.co\n"
-            "      SUPABASE_SERVICE_KEY=eyJ...  (from Legacy anon/service_role tab)\n"
-            "    OR (new key format):\n"
-            "      SUPABASE_SECRET_KEY=sb_secret_...  (from Secret keys section)\n"
+            "\n\n❌ Missing Supabase credentials.\n"
+            "Required variables:\n"
+            "  SUPABASE_URL=https://xxxx.supabase.co\n"
+            "  SUPABASE_SERVICE_KEY=eyJ...  (legacy service_role key)\n"
+            "OR:\n"
+            "  SUPABASE_SECRET_KEY=sb_secret_...  (new secret key)\n"
         )
 
     return create_client(url, key)
@@ -51,12 +57,12 @@ def get_bucket() -> str:
 
 # ── Supabase Table Names (single source of truth) ──────────────
 class Tables:
-    GRIEVANCES    = "grievances"
+    GRIEVANCES = "grievances"
     CRIME_REPORTS = "crime_reports"
-    HOTELS        = "hotels"
-    SPIRITUAL     = "spiritual_spots"
+    HOTELS = "hotels"
+    SPIRITUAL = "spiritual_spots"
     TOURIST_SPOTS = "tourist_spots"
-    EVENTS        = "spiritual_events"
+    EVENTS = "spiritual_events"
 
 
 # ── SQL: Create tables (run once in Supabase SQL editor) ────────
