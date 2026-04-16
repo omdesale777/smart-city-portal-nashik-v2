@@ -68,6 +68,9 @@
 
   /** Attempt login. Throws Error on failure with a user-friendly message. */
   async function login(role, username, password) {
+    if (!API_BASE) {
+      throw new Error('API base URL is not configured. See assets/js/config.js.');
+    }
     let res, data;
     try {
       res = await fetch(`${API_BASE}/api/admin/login`, {
@@ -76,7 +79,11 @@
         body:    JSON.stringify({ username, password }),
       });
     } catch (networkErr) {
-      throw new Error('Network error — cannot reach server. Please try again.');
+      console.error('Login network error. Tried:', `${API_BASE}/api/admin/login`, networkErr);
+      throw new Error(
+        `Cannot reach backend at ${API_BASE}. ` +
+        `Check that the backend is running, the URL is correct, and CORS allows this origin.`
+      );
     }
 
     try {
