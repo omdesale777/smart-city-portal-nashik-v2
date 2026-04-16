@@ -5,8 +5,8 @@
 fastapi==0.115.0
 uvicorn[standard]==0.32.0
 
-# Supabase client
-supabase==2.9.1
+# Supabase client — 2.15+ required for new sb_secret_* / sb_publishable_* key format
+supabase>=2.15.3
 
 # Environment variables
 python-dotenv==1.0.1

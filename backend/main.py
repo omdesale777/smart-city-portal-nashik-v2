@@ -28,15 +28,16 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────
+# Explicit production origins + a regex that matches any localhost/127.0.0.1
+# port during local development (Live Server, http.server, Vite, etc.).
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
-        "http://localhost:3000",
-        "https://smart-city-nashik.vercel.app",   # ← your Vercel URL
+        "https://smart-city-nashik.vercel.app",
+        "https://smart-city-portal-nashik-v2.vercel.app",
         "null",   # file:// protocol for local testing
     ],
+    allow_origin_regex=r"^http://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
