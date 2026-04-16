@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crime Reporting · नाशिक जिल्हा कायद्याचा बालेकिल्ला</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:        #B33030;
+      --red-lt:     #D94040;
+      --red-dk:     #8A2020;
+      --red-glow:   rgba(179,48,48,0.18);
+      --amber:      #D4820A;
+      --night:      #0C0C10;
+      --ink:        #111118;
+      --surface:    #18181F;
+      --surface2:   #202030;
+      --border:     rgba(255,255,255,0.07);
+      --border-act: rgba(179,48,48,0.45);
+      --muted:      #7A7A90;
+      --muted2:     #50505F;
+      --white:      #F0EDE8;
+
+      --success:    #22C55E;
+      --warn:       #F59E0B;
+      --danger:     #EF4444;
+      --shield:     #3B82F6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--night);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      
+    }
+
+    /* Cursor */
+    .cursor      { width: 9px; height: 9px; background: var(--red-lt); border-radius: 50%; position: fixed; top:0;left:0; pointer-events:none; z-index:9999; }
+    .cursor-ring { width: 34px; height: 34px; border: 1.5px solid rgba(179,48,48,.45); border-radius: 50%; position: fixed; top:0;left:0; pointer-events:none; z-index:9998; transition: width .2s, height .2s, border-color .2s; }
+
+    /* Noise overlay */
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events:none; z-index:1; opacity:.4;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      padding: 1rem 2.5rem;
+      background: rgba(12,12,16,.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 1.25rem;
+    }
+    .nav-back {
+      display: flex; align-items: center; gap: 0.5rem;
+      text-decoration: none; color: var(--muted);
+      font-size: 0.82rem; letter-spacing: 0.05em;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--white); }
+    .nav-divider { width: 1px; height: 18px; background: var(--border); }
+    .nav-title {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      font-size: 0.88rem; color: var(--red-lt); font-weight: 600;
+    }
+    .anon-badge {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 0.45rem;
+      background: rgba(59,130,246,.1);
+      border: 1px solid rgba(59,130,246,.25);
+      border-radius: 2rem;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      color: #93C5FD;
+    }
+    .anon-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--shield);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.4); }
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      min-height: calc(100vh - 57px);
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      background: var(--ink);
+      border-right: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      position: sticky; top: 57px;
+      height: calc(100vh - 57px);
+      overflow-y: auto;
+      display: flex; flex-direction: column; gap: 2rem;
+    }
+
+    .sidebar-eyebrow {
+      font-size: 0.68rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--red-lt);
+      margin-bottom: 0.5rem;
+    }
+    .sidebar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.65rem; font-weight: 700; line-height: 1.15;
+    }
+    .sidebar-title em { font-style: italic; color: var(--red-lt); }
+    .sidebar-desc {
+      font-size: 0.82rem; color: var(--muted);
+      line-height: 1.65; margin-top: 0.7rem;
+    }
+
+    /* Shield graphic */
+    .shield-graphic {
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem 0 0.5rem;
+    }
+    .shield-outer {
+      width: 88px; height: 88px;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .shield-ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(179,48,48,.3);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+    .shield-ring:nth-child(2) {
+      inset: -12px;
+      border-color: rgba(179,48,48,.12);
+      animation-delay: .8s;
+    }
+    .shield-ring:nth-child(3) {
+      inset: -24px;
+      border-color: rgba(179,48,48,.06);
+      animation-delay: 1.6s;
+    }
+    @keyframes ringPulse {
+      0%,100% { opacity: .4; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+    .shield-icon {
+      width: 52px; height: 52px;
+      background: rgba(179,48,48,.12);
+      border: 1.5px solid rgba(179,48,48,.3);
+      border-radius: 14px;
+      display: grid; place-items: center;
+      font-size: 1.5rem;
+      position: relative; z-index: 1;
+    }
+
+    /* Steps indicator */
+    .steps-indicator { display: flex; flex-direction: column; }
+    .step-item {
+      display: flex; align-items: flex-start;
+      gap: 1rem; position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: ''; position: absolute;
+      left: 15px; top: 34px;
+      width: 1px; height: calc(100% - 2px);
+      background: var(--border);
+    }
+    .step-dot-wrap { flex-shrink: 0; width: 32px; display: flex; justify-content: center; padding-top: 2px; }
+    .step-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--night);
+      display: grid; place-items: center;
+      font-size: 0.6rem; font-weight: 500;
+      color: var(--muted2);
+      transition: all .3s; position: relative; z-index:1;
+    }
+    .step-item.active .step-dot {
+      border-color: var(--red-lt); background: var(--red-lt);
+      color: var(--night); box-shadow: 0 0 12px rgba(179,48,48,.4);
+    }
+    .step-item.done .step-dot { border-color: var(--red-dk); background: var(--red-dk); color: var(--white); }
+    .step-text { padding: 0 0 1.75rem; }
+    .step-label { font-size: 0.82rem; font-weight: 500; color: var(--muted2); transition: color .3s; }
+    .step-item.active .step-label { color: var(--white); }
+    .step-item.done .step-label { color: var(--red-dk); }
+    .step-sublabel { font-size: 0.7rem; color: var(--muted2); margin-top: 0.15rem; opacity:.7; }
+
+    /* Info boxes */
+    .info-box {
+      background: rgba(59,130,246,.06);
+      border: 1px solid rgba(59,130,246,.18);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-size: 0.78rem; color: var(--muted); line-height: 1.55;
+    }
+    .info-box.warn-box {
+      background: rgba(245,158,11,.06);
+      border-color: rgba(245,158,11,.2);
+    }
+    .info-box strong {
+      display: block; color: #93C5FD;
+      font-size: 0.72rem; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 0.4rem;
+    }
+    .info-box.warn-box strong { color: var(--warn); }
+
+    /* ── MAIN ── */
+    .main { padding: 3rem 3.5rem; position: relative; }
+    .main::before {
+      content:''; position:absolute;
+      top:-80px; right:-80px;
+      width:500px; height:500px;
+      background: radial-gradient(circle, rgba(179,48,48,.05) 0%, transparent 65%);
+      pointer-events:none;
+    }
+
+    /* ── STEP PANELS ── */
+    .step-panel { display: none; max-width: 680px; }
+    .step-panel.active {
+      display: block;
+      animation: panelIn .35s ease forwards;
+    }
+    @keyframes panelIn {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 700; color: var(--white);
+      margin-bottom: 0.4rem;
+    }
+    .panel-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 2.5rem; line-height: 1.5; }
+
+    /* ── Incident Type Cards ── */
+    .type-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .type-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 1.4rem;
+      cursor: none; transition: all .25s;
+      position: relative; overflow: hidden;
+    }
+    .type-card:hover { border-color: rgba(179,48,48,.35); background: var(--surface2); transform: translateY(-2px); }
+    .type-card.selected {
+      border-color: var(--red-lt);
+      background: rgba(179,48,48,.08);
+      box-shadow: 0 0 0 1px var(--red-lt), inset 0 0 30px rgba(179,48,48,.04);
+    }
+    .type-card.selected::after {
+      content:'✓';
+      position:absolute; top:.75rem; right:.9rem;
+      width:20px; height:20px;
+      background: var(--red-lt); color: var(--night);
+      border-radius:50%; font-size:.6rem; font-weight:700;
+      display:grid; place-items:center;
+    }
+    .type-card input[type="radio"] { display: none; }
+    .type-icon { font-size: 1.8rem; margin-bottom: 0.6rem; display: block; }
+    .type-name { font-size: 0.92rem; font-weight: 500; color: var(--white); margin-bottom: 0.2rem; }
+    .type-desc { font-size: 0.73rem; color: var(--muted); line-height: 1.4; }
+
+    /* Urgency toggle */
+    .urgency-row { display: flex; gap: 0.75rem; margin-bottom: 2.5rem; }
+    .urgency-btn {
+      flex: 1; background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.8rem 0.5rem;
+      text-align: center; cursor: none;
+      font-size: 0.78rem; color: var(--muted);
+      transition: all .2s; font-family: 'DM Sans', sans-serif;
+    }
+    .urgency-btn:hover { border-color: rgba(255,255,255,.15); color: var(--white); }
+    .urgency-btn.sel-low    { border-color: var(--success); color: var(--success); background: rgba(34,197,94,.07); }
+    .urgency-btn.sel-medium { border-color: var(--warn);    color: var(--warn);    background: rgba(245,158,11,.07); }
+    .urgency-btn.sel-high   { border-color: var(--danger);  color: var(--danger);  background: rgba(239,68,68,.1); }
+    .urgency-btn small { display: block; font-size: 0.65rem; margin-top: 0.2rem; opacity: .7; }
+
+    /* ── Form fields ── */
+    .field-group { margin-bottom: 1.5rem; }
+    label {
+      display: block; font-size: 0.78rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.55rem; font-weight: 500;
+    }
+    label .req { color: var(--red-lt); margin-left: 2px; }
+    label .opt { color: var(--muted2); text-transform: none; letter-spacing: 0; font-size: .7rem; }
+
+    input[type="text"], input[type="datetime-local"], textarea, select {
+      width: 100%;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.85rem 1rem;
+      color: var(--white); font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+      appearance: none;
+    }
+    input::placeholder, textarea::placeholder { color: var(--muted2); }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--red-lt);
+      background: var(--surface2);
+      box-shadow: 0 0 0 3px rgba(179,48,48,.12);
+    }
+    textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* Char counter */
+    .char-count { font-size: .7rem; color: var(--muted2); text-align: right; margin-top: .3rem; }
+    .char-count.warn { color: var(--warn); }
+
+    /* Select arrow */
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7A90' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 1rem center;
+      padding-right: 2.5rem;
+    }
+    select option { background: #18181F; color: #F0EDE8; }
+
+    /* ── Media Upload ── */
+    .upload-tabs {
+      display: flex; gap: 0; margin-bottom: 1rem;
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    .upload-tab {
+      flex: 1; padding: 0.65rem; text-align: center;
+      font-size: 0.78rem; color: var(--muted); cursor: none;
+      background: var(--surface); transition: all .2s;
+      border: none; font-family: 'DM Sans', sans-serif;
+    }
+    .upload-tab.active { background: var(--surface2); color: var(--white); border-bottom: 2px solid var(--red-lt); }
+    .upload-tab:first-child { border-right: 1px solid var(--border); }
+
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: 14px;
+      padding: 2.5rem; text-align: center;
+      transition: all .25s; cursor: none;
+      position: relative; background: var(--surface);
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--red-lt); background: rgba(179,48,48,.05);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 2.2rem; margin-bottom: .75rem; }
+    .upload-text { font-size: .88rem; color: var(--muted); line-height: 1.5; }
+    .upload-text strong { color: #FCA5A5; }
+    .upload-hint { font-size: .72rem; color: var(--muted2); margin-top: .4rem; }
+
+    /* Media previews */
+    .media-previews { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+    .preview-item {
+      position: relative; width: 80px; height: 80px;
+      border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .preview-item img, .preview-item video {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .preview-item .remove-btn {
+      position: absolute; top: 3px; right: 3px;
+      width: 18px; height: 18px;
+      background: rgba(0,0,0,.75); border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: .65rem; cursor: pointer; color: white;
+      border: none; transition: background .2s;
+    }
+    .preview-item .remove-btn:hover { background: var(--danger); }
+    .video-badge {
+      position: absolute; bottom: 3px; left: 3px;
+      background: rgba(0,0,0,.75); color: white;
+      font-size: .5rem; padding: 1px 4px; border-radius: 3px;
+    }
+
+    /* ── Anonymity Toggle ── */
+    .anon-toggle-wrap {
+      background: rgba(59,130,246,.06);
+      border: 1px solid rgba(59,130,246,.2);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .anon-toggle-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .anon-toggle-text { flex: 1; }
+    .anon-toggle-label { font-size: .88rem; font-weight: 500; color: var(--white); margin-bottom: .15rem; }
+    .anon-toggle-sub { font-size: .75rem; color: var(--muted); line-height: 1.4; }
+
+    /* Toggle switch */
+    .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--surface2); border-radius: 12px;
+      transition: .3s; cursor: none;
+      border: 1px solid var(--border);
+    }
+    .toggle-slider::before {
+      content:''; position: absolute;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--muted2); left: 2px; top: 2px;
+      transition: .3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: rgba(59,130,246,.25); border-color: rgba(59,130,246,.4); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--shield); }
+
+    /* Contact (shown when not anon) */
+    .contact-section { margin-bottom: 1.5rem; overflow: hidden; }
+    .contact-section.hidden { display: none; }
+    .contact-note {
+      font-size: .75rem; color: var(--muted);
+      background: rgba(245,158,11,.06);
+      border: 1px solid rgba(245,158,11,.15);
+      border-radius: 8px; padding: .65rem .9rem;
+      margin-bottom: 1rem; line-height: 1.5;
+    }
+
+    /* ── Location ── */
+    .location-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      transition: border-color .2s; margin-bottom: .75rem;
+    }
+    .location-box.captured { border-color: var(--red-lt); background: rgba(179,48,48,.05); }
+    .loc-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .loc-info { flex: 1; }
+    .loc-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .loc-value { font-size: .85rem; color: var(--white); margin-top: .2rem; }
+    .loc-value.placeholder { color: var(--muted2); font-style: italic; }
+    .btn-locate {
+      background: rgba(179,48,48,.12); border: 1px solid rgba(179,48,48,.28);
+      color: #FCA5A5; border-radius: 8px;
+      padding: .55rem 1rem; font-size: .78rem;
+      font-family: 'DM Sans', sans-serif;
+      cursor: none; transition: all .2s; white-space: nowrap; font-weight: 500;
+    }
+    .btn-locate:hover { background: rgba(179,48,48,.22); border-color: var(--red-lt); }
+    .btn-locate:disabled { opacity: .5; }
+
+    /* ── Disclaimer ── */
+    .disclaimer {
+      background: rgba(179,48,48,.06);
+      border: 1px solid rgba(179,48,48,.2);
+      border-radius: 12px; padding: 1.1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .disclaimer-title {
+      font-size: .72rem; letter-spacing: .1em;
+      text-transform: uppercase; color: #FCA5A5;
+      margin-bottom: .5rem; font-weight: 600;
+    }
+    .disclaimer p {
+      font-size: .78rem; color: var(--muted); line-height: 1.55;
+    }
+
+    /* Checkbox */
+    .checkbox-row {
+      display: flex; align-items: flex-start; gap: .75rem;
+      margin-bottom: 1.5rem; cursor: none;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px; height: 18px; flex-shrink: 0;
+      accent-color: var(--red-lt); margin-top: 1px;
+      cursor: none;
+    }
+    .checkbox-row label {
+      text-transform: none; letter-spacing: 0;
+      font-size: .82rem; color: var(--muted);
+      line-height: 1.5; cursor: none;
+    }
+    .checkbox-row label a { color: var(--red-lt); text-decoration: none; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 1rem; align-items: center; margin-top: 2rem; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: var(--red-lt); color: var(--night);
+      font-weight: 600; font-size: .9rem;
+      padding: .9rem 2rem; border-radius: 3rem; border: none;
+      cursor: none; font-family: 'DM Sans', sans-serif;
+      transition: background .2s, transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover { background: #E04444; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(179,48,48,.35); }
+    .btn-primary:disabled { opacity: .5; pointer-events: none; }
+    .btn-back {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); font-size: .88rem; padding: .9rem 1.5rem;
+      border-radius: 3rem; cursor: none;
+      font-family: 'DM Sans', sans-serif; transition: all .2s;
+    }
+    .btn-back:hover { border-color: rgba(255,255,255,.15); color: var(--white); }
+
+    /* Loading */
+    .spinner {
+      width:16px; height:16px; border:2px solid rgba(12,12,16,.3);
+      border-top-color: var(--night); border-radius:50%;
+      animation:spin .7s linear infinite; display:none;
+    }
+    .btn-primary.loading .spinner { display:block; }
+    .btn-primary.loading .btn-label { display:none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error */
+    .error-msg { font-size:.75rem; color: var(--danger); margin-top:.35rem; display:none; }
+    .field-group.has-error input,
+    .field-group.has-error textarea,
+    .field-group.has-error select { border-color: var(--danger); }
+    .field-group.has-error .error-msg { display:block; }
+
+    /* ── SUCCESS ── */
+    .success-screen { display: none; max-width: 520px; }
+    .success-screen.show { display: block; animation: panelIn .4s ease forwards; }
+
+    .success-shield {
+      width: 80px; height: 80px;
+      background: rgba(34,197,94,.1);
+      border: 1.5px solid rgba(34,197,94,.3);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 2rem; margin: 0 0 1.5rem;
+    }
+    .success-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem; color: var(--white); margin-bottom: .75rem;
+    }
+    .success-desc { font-size: .88rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.5rem; }
+
+    .ref-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
+    }
+    .ref-row { display: flex; align-items: center; justify-content: space-between; }
+    .ref-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: .3rem; }
+    .ref-id { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #FCA5A5; font-weight: 700; }
+    .copy-btn {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); font-size: .72rem; padding: .4rem .9rem;
+      border-radius: 2rem; cursor: none; font-family: 'DM Sans', sans-serif;
+      transition: all .2s;
+    }
+    .copy-btn:hover { border-color: rgba(255,255,255,.15); color: var(--white); }
+
+    .success-anon-note {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: rgba(59,130,246,.06);
+      border: 1px solid rgba(59,130,246,.18);
+      border-radius: 12px; padding: 1rem 1.25rem;
+      font-size: .8rem; color: var(--muted); line-height: 1.5; margin-bottom: 1.5rem;
+    }
+    .success-anon-note span { flex-shrink: 0; font-size: 1.1rem; }
+
+    .success-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--white); font-size: .88rem; padding: .8rem 1.75rem;
+      border-radius: 3rem; cursor: none; font-family: 'DM Sans', sans-serif;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.04); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--night); }
+    ::-webkit-scrollbar-thumb { background: var(--red-dk); border-radius: 2px; }
+
+    /* ── Mobile ── */
+
+    /* ── Mobile: Crime Reporting ── */
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .sidebar {
+        position: relative; top: 0; height: auto;
+        padding: 1.5rem 1.25rem;
+        border-right: none; border-bottom: 1px solid var(--border);
+      }
+      .sidebar-title { font-size: 1.4rem; }
+      .steps-indicator, .shield-graphic, .info-box { display: none; }
+      .main { padding: 1.75rem 1.25rem; }
+      .type-grid { grid-template-columns: 1fr 1fr; gap: .75rem; }
+      .type-card { padding: 1.1rem; border-radius: 12px; }
+      .type-icon { font-size: 1.5rem; margin-bottom: .5rem; }
+      .type-desc { display: none; }
+      .urgency-row { gap: .5rem; }
+      .urgency-btn small { display: none; }
+      .panel-title { font-size: 1.3rem; }
+      .btn-row { flex-wrap: wrap; }
+      .btn-primary { width: 100%; justify-content: center; }
+      .anon-toggle-wrap { flex-wrap: wrap; gap: .75rem; }
+      .disclaimer { padding: .9rem 1rem; }
+    }
+    @media (max-width: 540px) {
+      .nav { padding: .85rem 1rem; }
+      .type-grid { grid-template-columns: 1fr 1fr; }
+      .field-row { grid-template-columns: 1fr; }
+      .urgency-row { flex-direction: column; }
+      .steps-indicator { display: none; }
+      .btn-back { width: 100%; text-align: center; }
+      .success-shield { width: 60px; height: 60px; font-size: 1.4rem; }
+      .success-title { font-size: 1.5rem; }
+      .success-actions { flex-direction: column; }
+      .btn-ghost { justify-content: center; }
+    }
+    @media (max-width: 400px) {
+      .type-grid { grid-template-columns: 1fr; }
+    }
+
+    .nav-modules {
+      margin-left: auto;
+      display: flex; gap: .25rem;
+    }
+    .nav-mod-link {
+      font-size: .72rem; font-weight: 500;
+      padding: .35rem .75rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      color: var(--muted);
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .nav-mod-link:hover  { background: rgba(255,255,255,.07); color: var(--white); }
+    .nav-mod-link.active { background: rgba(179,48,48,.15); color: var(--red-lt); }
+  </style>
+  <script src="../assets/js/preloader.js"></script>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="../index.html" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M10 7H4M6 4L3 7l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Home
+    </a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">नाशिक जिल्हा कायद्याचा बालेकिल्ला</span>
+    <div class="anon-badge">
+      <div class="anon-dot"></div>
+      Identity Protected
+    </div>
+
+    <div class="nav-modules">
+      <a href="../kumbhnagari/index.html" class="nav-mod-link">🕌 Spiritual</a>
+      <a href="../grievance/index.html" class="nav-mod-link">📋 Grievance</a>
+      <a href="../crime/index.html" class="nav-mod-link active">🛡️ Crime</a>
+      <a href="../tourism/index.html" class="nav-mod-link">🗺️ Travel</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <div>
+        <p class="sidebar-eyebrow">Crime Reporting</p>
+        <h1 class="sidebar-title">Report.<br><em>Stay Safe.</em></h1>
+        <p class="sidebar-desc">Submit photo or video evidence of illegal or suspicious activities. Your identity is completely protected — law enforcement is notified immediately.</p>
+      </div>
+
+      <div class="shield-graphic">
+        <div class="shield-outer">
+          <div class="shield-ring"></div>
+          <div class="shield-ring"></div>
+          <div class="shield-ring"></div>
+          <div class="shield-icon">🛡️</div>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="steps-indicator">
+        <div class="step-item active" id="si-1">
+          <div class="step-dot-wrap"><div class="step-dot">1</div></div>
+          <div class="step-text">
+            <div class="step-label">Incident Type</div>
+            <div class="step-sublabel">What did you witness?</div>
+          </div>
+        </div>
+        <div class="step-item" id="si-2">
+          <div class="step-dot-wrap"><div class="step-dot">2</div></div>
+          <div class="step-text">
+            <div class="step-label">Evidence & Description</div>
+            <div class="step-sublabel">Upload media, describe the incident</div>
+          </div>
+        </div>
+        <div class="step-item" id="si-3">
+          <div class="step-dot-wrap"><div class="step-dot">3</div></div>
+          <div class="step-text">
+            <div class="step-label">Location & Submit</div>
+            <div class="step-sublabel">Where & anonymity settings</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>🔒 Anonymity by Default</strong>
+        Your name and contact details are never stored or shared. Reports are forwarded to Nashik Police with no identifying information.
+      </div>
+
+      <div class="info-box warn-box">
+        <strong>⚠️ Emergency?</strong>
+        For ongoing emergencies, call <strong style="color:var(--warn);">100 (Police)</strong> or <strong style="color:var(--warn);">112</strong> immediately. This portal is for non-emergency evidence submission.
+      </div>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="main" id="mainContent">
+
+      <!-- ── STEP 1: Incident Type ── -->
+      <div class="step-panel active" id="panel-1">
+        <h2 class="panel-title">What did you witness?</h2>
+        <p class="panel-sub">Select the type of incident you are reporting. All reports are handled confidentially by Nashik Police.</p>
+
+        <div class="type-grid">
+          <label class="type-card" onclick="selectType(this,'theft')">
+            <input type="radio" name="incident_type" value="theft"/>
+            <span class="type-icon">🔓</span>
+            <div class="type-name">Theft / Robbery</div>
+            <div class="type-desc">Snatching, burglary, vehicle theft, pickpocketing</div>
+          </label>
+          <label class="type-card" onclick="selectType(this,'harassment')">
+            <input type="radio" name="incident_type" value="harassment"/>
+            <span class="type-icon">🚨</span>
+            <div class="type-name">Harassment / Eve Teasing</div>
+            <div class="type-desc">Verbal or physical harassment in public spaces</div>
+          </label>
+          <label class="type-card" onclick="selectType(this,'drugs')">
+            <input type="radio" name="incident_type" value="drugs"/>
+            <span class="type-icon">💊</span>
+            <div class="type-name">Drug / Illegal Activity</div>
+            <div class="type-desc">Drug sale, consumption, or other illegal trade</div>
+          </label>
+          <label class="type-card" onclick="selectType(this,'assault')">
+            <input type="radio" name="incident_type" value="assault"/>
+            <span class="type-icon">⚠️</span>
+            <div class="type-name">Physical Assault</div>
+            <div class="type-desc">Fighting, violence, or bodily harm witnessed</div>
+          </label>
+          <label class="type-card" onclick="selectType(this,'suspicious')">
+            <input type="radio" name="incident_type" value="suspicious"/>
+            <span class="type-icon">👁️</span>
+            <div class="type-name">Suspicious Activity</div>
+            <div class="type-desc">Unusual behaviour, loitering, unattended objects</div>
+          </label>
+          <label class="type-card" onclick="selectType(this,'other')">
+            <input type="radio" name="incident_type" value="other"/>
+            <span class="type-icon">📌</span>
+            <div class="type-name">Other Incident</div>
+            <div class="type-desc">Any other criminal or suspicious activity</div>
+          </label>
+        </div>
+
+        <!-- Urgency -->
+        <div class="field-group">
+          <label>How urgent is this? <span class="req">*</span></label>
+          <div class="urgency-row">
+            <button type="button" class="urgency-btn" onclick="setUrgency('low',this)">
+              🟢 Not Urgent
+              <small>Observed, not ongoing</small>
+            </button>
+            <button type="button" class="urgency-btn" onclick="setUrgency('medium',this)">
+              🟡 Moderate
+              <small>Happened recently</small>
+            </button>
+            <button type="button" class="urgency-btn" onclick="setUrgency('high',this)">
+              🔴 High / Ongoing
+              <small>Still happening now</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary" id="btn-next-1" onclick="goToStep(2)" disabled>
+            <span class="btn-label">Next — Add Evidence</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: Evidence & Description ── -->
+      <div class="step-panel" id="panel-2">
+        <h2 class="panel-title">Evidence & Description</h2>
+        <p class="panel-sub">Upload photo or video evidence and describe what you witnessed. Every detail helps the investigation.</p>
+
+        <!-- Media upload with tabs -->
+        <div class="field-group">
+          <label>Upload Evidence <span class="opt">(strongly recommended)</span></label>
+          <div class="upload-tabs">
+            <button type="button" class="upload-tab active" id="tab-photo" onclick="switchTab('photo')">📷 Photos</button>
+            <button type="button" class="upload-tab" id="tab-video" onclick="switchTab('video')">🎥 Videos</button>
+          </div>
+
+          <div id="photo-zone">
+            <div class="upload-zone" id="uploadZone">
+              <input type="file" id="photoInput" accept="image/*" multiple onchange="handleFiles(event,'photo')"/>
+              <div class="upload-icon">📷</div>
+              <div class="upload-text"><strong>Tap to upload photos</strong> or drag & drop here</div>
+              <div class="upload-hint">JPG, PNG, WEBP · Max 5MB each · Up to 5 photos</div>
+            </div>
+          </div>
+
+          <div id="video-zone" style="display:none;">
+            <div class="upload-zone" id="uploadZoneVideo">
+              <input type="file" id="videoInput" accept="video/*" multiple onchange="handleFiles(event,'video')"/>
+              <div class="upload-icon">🎥</div>
+              <div class="upload-text"><strong>Tap to upload video</strong> or drag & drop here</div>
+              <div class="upload-hint">MP4, MOV, AVI · Max 50MB · Up to 2 videos</div>
+            </div>
+          </div>
+
+          <div class="media-previews" id="mediaPreviews"></div>
+        </div>
+
+        <div class="field-group" id="fg-title">
+          <label>Incident Summary <span class="req">*</span></label>
+          <input type="text" id="incident-title" placeholder="Brief one-line summary of what you saw" maxlength="120"/>
+          <div class="error-msg">Please enter a brief summary.</div>
+        </div>
+
+        <div class="field-group" id="fg-desc">
+          <label>Full Description <span class="req">*</span></label>
+          <textarea id="incident-desc" placeholder="Describe the incident in detail — who was involved, what happened, how many people, vehicles, any identifiable features…" maxlength="800" oninput="updateCharCount(this,800,'desc-count')"></textarea>
+          <div class="char-count" id="desc-count">0 / 800</div>
+          <div class="error-msg">Please describe the incident.</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>Approx. Date &amp; Time <span class="opt">(of incident)</span></label>
+            <input type="datetime-local" id="incident-time"/>
+          </div>
+          <div class="field-group">
+            <label>Number of Suspects <span class="opt">(if applicable)</span></label>
+            <select id="suspect-count">
+              <option value="">Unknown</option>
+              <option value="1">1 person</option>
+              <option value="2">2 people</option>
+              <option value="3-5">3–5 people</option>
+              <option value="5+">5 or more</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Suspect Description <span class="opt">(optional but helpful)</span></label>
+          <input type="text" id="suspect-desc" placeholder="e.g. Male, ~25 yrs, blue shirt, riding black Pulsar bike"/>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goToStep(1)">← Back</button>
+          <button class="btn-primary" onclick="validateStep2()">
+            <span class="btn-label">Next — Location & Submit</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Location, Anonymity, Submit ── -->
+      <div class="step-panel" id="panel-3">
+        <h2 class="panel-title">Where & How to Submit</h2>
+        <p class="panel-sub">Add the incident location, choose your anonymity setting, and submit your report to Nashik Police.</p>
+
+        <!-- Location -->
+        <div class="field-group">
+          <label>Incident Location <span class="req">*</span></label>
+          <div class="location-box" id="locationBox">
+            <span class="loc-icon">📍</span>
+            <div class="loc-info">
+              <div class="loc-label">GPS Coordinates</div>
+              <div class="loc-value placeholder" id="locValue">Not captured yet</div>
+            </div>
+            <button class="btn-locate" id="btnLocate" onclick="captureLocation()">📡 Get Location</button>
+          </div>
+        </div>
+
+        <div class="field-group" id="fg-address">
+          <label>Address or Landmark <span class="req">*</span></label>
+          <input type="text" id="inc-address" placeholder="e.g. Mahatma Gandhi Road, near Old CBS Nashik"/>
+          <div class="error-msg">Please enter the location where this occurred.</div>
+        </div>
+
+        <div class="field-group">
+          <label>Area / Ward</label>
+          <select id="inc-ward">
+            <option value="">Select area (optional)</option>
+            <option>Nashik Road</option>
+            <option>CBS / Mahatma Gandhi Road</option>
+            <option>Panchavati</option>
+            <option>Satpur</option>
+            <option>Ambad</option>
+            <option>Cidco</option>
+            <option>Deolali</option>
+            <option>Gangapur Road</option>
+            <option>College Road</option>
+            <option>Dwarka</option>
+            <option>Indira Nagar</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:1.5rem 0;"></div>
+
+        <!-- Anonymity toggle -->
+        <div class="anon-toggle-wrap">
+          <span class="anon-toggle-icon">🔒</span>
+          <div class="anon-toggle-text">
+            <div class="anon-toggle-label">Submit Anonymously</div>
+            <div class="anon-toggle-sub">When ON, no personal details are stored. Toggle OFF only if you want police to contact you for follow-up.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="anonToggle" checked onchange="toggleAnon()"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Contact fields (hidden when anon = ON) -->
+        <div class="contact-section hidden" id="contactSection">
+          <div class="contact-note">⚠️ Your contact info will be shared only with the investigating officer and kept strictly confidential.</div>
+          <div class="field-row">
+            <div class="field-group">
+              <label>Your Name <span class="opt">(optional)</span></label>
+              <input type="text" id="rep-name" placeholder="Full name"/>
+            </div>
+            <div class="field-group" id="fg-phone">
+              <label>Mobile Number <span class="req">*</span></label>
+              <input type="text" id="rep-phone" placeholder="10-digit number" maxlength="10"/>
+              <div class="error-msg">Enter a valid 10-digit mobile number.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+          <div class="disclaimer-title">⚖️ Legal Disclaimer</div>
+          <p>Submitting false or fabricated reports is a punishable offence under Indian law. This portal is intended solely for genuine, good-faith reporting of witnessed criminal or suspicious activities.</p>
+        </div>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="agreeCheck" onchange="document.getElementById('btn-submit').disabled = !this.checked"/>
+          <label for="agreeCheck">I confirm that the information submitted is accurate to the best of my knowledge, and I understand the legal implications of false reporting.</label>
+        </div>
+
+        <div id="submitError" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;color:#FCA5A5;margin-bottom:1rem;"></div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goToStep(2)">← Back</button>
+          <button class="btn-primary" id="btn-submit" onclick="submitReport()" disabled>
+            <span class="btn-label">Submit to Nashik Police</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── SUCCESS ── -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-shield">🛡️</div>
+        <h2 class="success-title">Report Submitted</h2>
+        <p class="success-desc">Your report has been securely forwarded to the Nashik District Police. The evidence will be reviewed by the assigned officer within 24 hours.</p>
+
+        <div class="ref-box">
+          <div class="ref-row">
+            <div>
+              <div class="ref-label">Report Reference ID</div>
+              <div class="ref-id" id="refId">–</div>
+            </div>
+            <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+          </div>
+        </div>
+
+        <div class="success-anon-note">
+          <span>🔒</span>
+          Your identity was <strong style="color:var(--white);">not stored</strong> in connection with this report. The reference ID is the only way to track it.
+        </div>
+
+        <div class="success-actions">
+          <button class="btn-ghost" onclick="resetForm()">+ Report Another</button>
+          <a href="../index.html" class="btn-ghost">← Back to Home</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../assets/js/config.js"></script>
+  <script>
+
+    // ── Cursor (desktop only — disabled on touch) ──
+    (function() {
+      if (!window.matchMedia('(pointer: fine)').matches) return;
+      const dot  = document.getElementById('cursor');
+      const ring = document.getElementById('cursorRing');
+      if (!dot || !ring) return;
+      let mx=0, my=0, rx=0, ry=0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+      }, { passive: true });
+      (function loop() {
+        rx += (mx - rx) * 0.28;
+        ry += (my - ry) * 0.28;
+        ring.style.transform = `translate(${rx - 19}px, ${ry - 19}px)`;
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll('a, button, label, .type-card, .urgency-btn').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.style.width = '50px'; ring.style.height = '50px';
+          ring.style.borderColor = 'rgba(179,48,48,.9)';
+          ring.style.borderWidth = '2.5px';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.style.width = '38px'; ring.style.height = '38px';
+          ring.style.borderColor = 'rgba(179,48,48,.45)';
+          ring.style.borderWidth = '2px';
+        });
+      });
+    })();
+
+    // ── State ──
+    let currentStep = 1;
+    let selectedType = null;
+    let selectedUrgency = null;
+    let mediaFiles = { photo: [], video: [] };
+    let gpsCoords = null;
+    let currentTab = 'photo';
+    let isAnon = true;
+
+    // ── Type Selection ──
+    function selectType(el, type) {
+      document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedType = type;
+      checkStep1Ready();
+    }
+
+    // ── Urgency ──
+    function setUrgency(level, btn) {
+      document.querySelectorAll('.urgency-btn').forEach(b => b.className = 'urgency-btn');
+      btn.classList.add(`sel-${level}`);
+      selectedUrgency = level;
+      checkStep1Ready();
+    }
+
+    function checkStep1Ready() {
+      document.getElementById('btn-next-1').disabled = !(selectedType && selectedUrgency);
+    }
+
+    // ── Media Tabs ──
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-photo').classList.toggle('active', tab === 'photo');
+      document.getElementById('tab-video').classList.toggle('active', tab === 'video');
+      document.getElementById('photo-zone').style.display = tab === 'photo' ? 'block' : 'none';
+      document.getElementById('video-zone').style.display = tab === 'video' ? 'block' : 'none';
+    }
+
+    // Drag-drop
+    ['uploadZone','uploadZoneVideo'].forEach(id => {
+      const zone = document.getElementById(id);
+      if (!zone) return;
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault(); zone.classList.remove('drag-over');
+        const type = id.includes('Video') ? 'video' : 'photo';
+        addFiles([...e.dataTransfer.files], type);
+      });
+    });
+
+    function handleFiles(event, type) { addFiles([...event.target.files], type); }
+
+    function addFiles(files, type) {
+      const max  = type === 'photo' ? 5 : 2;
+      const mime = type === 'photo' ? 'image/' : 'video/';
+      const valid = files.filter(f => f.type.startsWith(mime));
+      const remaining = max - mediaFiles[type].length;
+      mediaFiles[type] = [...mediaFiles[type], ...valid.slice(0, remaining)];
+      renderPreviews();
+    }
+
+    function renderPreviews() {
+      const container = document.getElementById('mediaPreviews');
+      container.innerHTML = '';
+      const all = [
+        ...mediaFiles.photo.map(f => ({ f, type: 'photo' })),
+        ...mediaFiles.video.map(f => ({ f, type: 'video' }))
+      ];
+      all.forEach(({ f, type }, i) => {
+        const url = URL.createObjectURL(f);
+        const div = document.createElement('div');
+        div.className = 'preview-item';
+        if (type === 'photo') {
+          div.innerHTML = `<img src="${url}" alt="preview"/><button class="remove-btn" onclick="removeMedia('photo',${mediaFiles.photo.indexOf(f)})">✕</button>`;
+        } else {
+          div.innerHTML = `<video src="${url}" muted></video><span class="video-badge">VID</span><button class="remove-btn" onclick="removeMedia('video',${mediaFiles.video.indexOf(f)})">✕</button>`;
+        }
+        container.appendChild(div);
+      });
+    }
+
+    function removeMedia(type, i) {
+      mediaFiles[type].splice(i, 1);
+      renderPreviews();
+    }
+
+    // ── Step Navigation ──
+    function goToStep(step) {
+      document.getElementById(`panel-${currentStep}`).classList.remove('active');
+      const fromEl = document.getElementById(`si-${currentStep}`);
+      const toEl   = document.getElementById(`si-${step}`);
+      if (fromEl) {
+        fromEl.classList.remove('active');
+        if (step > currentStep) fromEl.classList.add('done');
+        else fromEl.classList.remove('done');
+      }
+      if (toEl) { toEl.classList.add('active'); toEl.classList.remove('done'); }
+      currentStep = step;
+      setTimeout(() => {
+        document.getElementById(`panel-${step}`).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 40);
+    }
+
+    // ── Validate Step 2 ──
+    function validateStep2() {
+      const title = document.getElementById('incident-title');
+      const desc  = document.getElementById('incident-desc');
+      const tErr  = !title.value.trim();
+      const dErr  = !desc.value.trim();
+      document.getElementById('fg-title').classList.toggle('has-error', tErr);
+      document.getElementById('fg-desc').classList.toggle('has-error',  dErr);
+      if (!tErr && !dErr) goToStep(3);
+    }
+
+    // ── Char counter ──
+    function updateCharCount(el, max, id) {
+      const n = el.value.length;
+      const el2 = document.getElementById(id);
+      el2.textContent = `${n} / ${max}`;
+      el2.classList.toggle('warn', n > max * 0.85);
+    }
+
+    // ── Location ──
+    function captureLocation() {
+      const btn = document.getElementById('btnLocate');
+      const val = document.getElementById('locValue');
+      const box = document.getElementById('locationBox');
+      btn.disabled = true; btn.textContent = '⏳ Fetching…';
+      val.textContent = 'Getting your location…'; val.classList.remove('placeholder');
+      if (!navigator.geolocation) {
+        val.textContent = 'Geolocation not supported.'; val.classList.add('placeholder');
+        btn.disabled = false; btn.textContent = '📡 Get Location'; return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          gpsCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          val.textContent = `${gpsCoords.lat.toFixed(5)}, ${gpsCoords.lng.toFixed(5)}`;
+          box.classList.add('captured');
+          btn.textContent = '✓ Captured'; btn.style.color = 'var(--success)';
+        },
+        () => {
+          val.textContent = 'Could not get location. Enter address manually.';
+          val.classList.add('placeholder');
+          btn.disabled = false; btn.textContent = '📡 Try Again';
+        }
+      );
+    }
+
+    // ── Anonymity ──
+    function toggleAnon() {
+      isAnon = document.getElementById('anonToggle').checked;
+      document.getElementById('contactSection').classList.toggle('hidden', isAnon);
+    }
+
+    // ── Submit ──
+    async function submitReport() {
+      const address = document.getElementById('inc-address');
+      const errBox  = document.getElementById('submitError');
+      errBox.style.display = 'none';
+
+      if (!address.value.trim()) {
+        document.getElementById('fg-address').classList.add('has-error');
+        return;
+      }
+      if (!isAnon) {
+        const phone = document.getElementById('rep-phone');
+        if (!/^\d{10}$/.test(phone.value.trim())) {
+          document.getElementById('fg-phone').classList.add('has-error');
+          return;
+        }
+      }
+
+      const btn = document.getElementById('btn-submit');
+      btn.classList.add('loading'); btn.disabled = true;
+
+      const payload = {
+        incident_type:    selectedType,
+        urgency:          selectedUrgency,
+        title:            document.getElementById('incident-title').value.trim(),
+        description:      document.getElementById('incident-desc').value.trim(),
+        incident_time:    document.getElementById('incident-time').value || null,
+        suspect_count:    document.getElementById('suspect-count').value || null,
+        suspect_desc:     document.getElementById('suspect-desc').value.trim() || null,
+        address:          address.value.trim(),
+        ward:             document.getElementById('inc-ward').value || null,
+        gps:              gpsCoords,
+        is_anonymous:     isAnon,
+        reporter_phone:   isAnon ? null : document.getElementById('rep-phone').value.trim(),
+        photos_count:     mediaFiles.photo.length,
+        videos_count:     mediaFiles.video.length,
+      };
+
+      const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || '';
+      const formData = new FormData();
+      formData.append('data', JSON.stringify(payload));
+      mediaFiles.photo.forEach(f => formData.append('photos', f));
+      mediaFiles.video.forEach(f => formData.append('videos', f));
+
+      try {
+        const res  = await fetch(`${API_BASE}/api/crime-reports/`, { method: 'POST', body: formData });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const detail = typeof json.detail === 'string' ? json.detail : `Submission failed (${res.status}).`;
+          throw new Error(detail);
+        }
+
+        btn.classList.remove('loading');
+        ['panel-1','panel-2','panel-3'].forEach(id => document.getElementById(id).classList.remove('active'));
+        document.querySelectorAll('.step-item').forEach(el => { el.classList.remove('active'); el.classList.add('done'); });
+        document.getElementById('refId').textContent = json.ref_id;
+        document.getElementById('successScreen').classList.add('show');
+      } catch (err) {
+        console.error('Crime report submit failed:', err);
+        errBox.textContent = (err && err.message === 'Failed to fetch')
+          ? 'Network error — cannot reach server. Is the backend running?'
+          : `⚠ ${err.message || 'Submission failed. Please try again.'}`;
+        errBox.style.display = 'block';
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    // ── Copy ref ──
+    function copyRef() {
+      const id = document.getElementById('refId').textContent;
+      navigator.clipboard.writeText(id).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => btn.textContent = '📋 Copy', 2000);
+      });
+    }
+
+    // ── Reset ──
+    function resetForm() {
+      currentStep = 1; selectedType = null; selectedUrgency = null;
+      mediaFiles = { photo:[], video:[] }; gpsCoords = null; isAnon = true;
+
+      document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('.urgency-btn').forEach(b => b.className = 'urgency-btn');
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-1').classList.add('active');
+      document.getElementById('successScreen').classList.remove('show');
+      document.querySelectorAll('.step-item').forEach((el,i) => {
+        el.classList.remove('done','active');
+        if (i===0) el.classList.add('active');
+      });
+      document.getElementById('btn-next-1').disabled = true;
+      document.getElementById('mediaPreviews').innerHTML = '';
+      document.getElementById('anonToggle').checked = true;
+      document.getElementById('contactSection').classList.add('hidden');
+      document.getElementById('agreeCheck').checked = false;
+      document.getElementById('btn-submit').disabled = true;
+
+      ['incident-title','incident-desc','inc-address','rep-name','rep-phone','suspect-desc'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      document.getElementById('inc-ward').value = '';
+      document.getElementById('suspect-count').value = '';
+      document.getElementById('locValue').textContent = 'Not captured yet';
+      document.getElementById('locValue').classList.add('placeholder');
+      document.getElementById('locationBox').classList.remove('captured');
+      document.getElementById('btnLocate').textContent = '📡 Get Location';
+      document.getElementById('btnLocate').disabled = false;
+      document.getElementById('btnLocate').style.color = '';
+      document.getElementById('desc-count').textContent = '0 / 800';
+      document.querySelectorAll('.field-group').forEach(fg => fg.classList.remove('has-error'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

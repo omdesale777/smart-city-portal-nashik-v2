@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Police Admin Login · Smart City Nashik</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:     #B33030;
+      --red-lt:  #D94040;
+      --red-dk:  #8A2020;
+      --night:   #0C0F14;
+      --surface: #131820;
+      --border:  rgba(179,48,48,0.2);
+      --muted:   #7A8099;
+      --white:   #F0EDE8;
+      --danger:  #EF4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--night);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(179,48,48,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(179,48,48,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%; max-width: 400px;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(179,48,48,0.1);
+    }
+
+    /* Top accent bar */
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 2rem; right: 2rem;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+      border-radius: 0 0 2px 2px;
+    }
+
+    .logo-wrap {
+      display: flex; align-items: center; gap: .9rem;
+      margin-bottom: 2rem;
+    }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: rgba(179,48,48,0.15);
+      border: 1.5px solid rgba(179,48,48,0.35);
+      border-radius: 12px;
+      display: grid; place-items: center;
+      font-size: 1.3rem;
+    }
+    .logo-text { }
+    .logo-title {
+      font-size: .72rem; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--red-lt);
+      font-weight: 600;
+    }
+    .logo-sub {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      font-size: .78rem; color: var(--muted);
+      margin-top: .1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--white); margin-bottom: .4rem;
+    }
+    .subtitle {
+      font-size: .82rem; color: var(--muted);
+      margin-bottom: 2rem; line-height: 1.5;
+    }
+
+    .field { margin-bottom: 1.25rem; }
+    label {
+      display: block; font-size: .72rem;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: .5rem; font-weight: 500;
+    }
+    input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .2s, background .2s;
+    }
+    input::placeholder { color: var(--muted); opacity: .6; }
+    input:focus {
+      border-color: var(--red);
+      background: rgba(179,48,48,0.06);
+    }
+
+    /* Password toggle */
+    .pass-wrap { position: relative; }
+    .pass-toggle {
+      position: absolute; right: .85rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: .85rem; padding: .25rem;
+      transition: color .2s;
+    }
+    .pass-toggle:hover { color: var(--white); }
+
+    .btn-login {
+      width: 100%; padding: .95rem;
+      background: var(--red);
+      color: #0C0F14; font-weight: 700;
+      font-size: .95rem; border: none; border-radius: 10px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      margin-top: 1.75rem;
+    }
+    .btn-login:hover { background: var(--red-lt); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(179,48,48,0.3); }
+    .btn-login:disabled { opacity: .5; pointer-events: none; }
+
+    /* Spinner */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(12,15,20,.3);
+      border-top-color: #0C0F14;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: none;
+    }
+    .btn-login.loading .spinner { display: block; }
+    .btn-login.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error alert */
+    .error-alert {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 8px; padding: .75rem 1rem;
+      font-size: .8rem; color: #FCA5A5;
+      margin-top: 1rem; display: none;
+      align-items: center; gap: .5rem;
+    }
+    .error-alert.show { display: flex; }
+
+    /* Footer link */
+    .back-link {
+      display: block; text-align: center;
+      margin-top: 1.5rem;
+      font-size: .78rem; color: var(--muted);
+      text-decoration: none; transition: color .2s;
+    }
+    .back-link:hover { color: var(--white); }
+
+    @media (max-width: 480px) {
+      .card { padding: 2rem 1.5rem; border-radius: 16px; }
+    }
+  </style>
+  <script src="../../assets/js/preloader.js"></script>
+</head>
+<body>
+
+  <div class="card">
+    <div class="logo-wrap">
+      <div class="logo-icon">👮</div>
+      <div class="logo-text">
+        <div class="logo-title">Police Admin Portal</div>
+        <div class="logo-sub">नाशिक जिल्हा पोलीस</div>
+      </div>
+    </div>
+
+    <h1>Sign In</h1>
+    <p class="subtitle">Nashik District Police — Crime Reports Dashboard</p>
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="police_nashik" autocomplete="username"/>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <div class="pass-wrap">
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="pass-toggle" onclick="togglePass()" id="passToggle" type="button">👁</button>
+      </div>
+    </div>
+
+    <div class="error-alert" id="errorAlert">
+      <span>⚠️</span> <span id="errorMsg">Invalid username or password.</span>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">
+      <div class="spinner"></div>
+      <span class="btn-text">Sign In to Dashboard →</span>
+    </button>
+
+    <a href="../../index.html" class="back-link">← Back to Smart City Portal</a>
+  </div>
+
+  <script src="../../assets/js/config.js"></script>
+  <script src="../../assets/js/auth.js"></script>
+  <script>
+    const ROLE = 'police';
+
+    // If a valid session already exists, skip the login screen.
+    if (!Auth.getSession(ROLE).isExpired) {
+      window.location.href = 'dashboard.html';
+    }
+
+    function togglePass() {
+      const inp = document.getElementById('password');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    async function doLogin() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const btn      = document.getElementById('loginBtn');
+      const errAlert = document.getElementById('errorAlert');
+      const errMsg   = document.getElementById('errorMsg');
+
+      if (!username || !password) {
+        errMsg.textContent = 'Please enter both username and password.';
+        errAlert.classList.add('show');
+        return;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+      errAlert.classList.remove('show');
+
+      try {
+        await Auth.login(ROLE, username, password);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        errMsg.textContent = err.message || 'Login failed.';
+        errAlert.classList.add('show');
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
