@@ -20,7 +20,7 @@
   // ⚠ If your production backend is at a different URL, either set the meta
   //   tag in the HTML head, or change this constant.
   const PROD_API_BASE_URL = 'https://smart-city-portal-nashik-v2.onrender.com';
-  const DEV_API_BASE_URL  = 'http://localhost:8001';
+  const DEV_API_BASE_URL  = 'https://smart-city-portal-nashik-v2.onrender.com';
 
   const host    = (typeof location !== 'undefined' && location.hostname) || '';
   const isLocal = !host || host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0';
