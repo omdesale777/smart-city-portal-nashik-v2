@@ -326,7 +326,30 @@ textarea {
 /* ───────────────────────────────────────────────────────────
  *  GRID AUTO-COLLAPSE — last-resort safety net for any grid
  *  that uses repeat(N, 1fr) without its own media query.
+ *
+ *  ALSO: any grid child using `grid-column: span N` on mobile
+ *  will silently expand the implicit grid and squeeze siblings
+ *  to zero width — which causes letter-by-letter vertical
+ *  text stacking. Force all direct grid children to span 1.
  * ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .modules-grid > *,
+  .cards-grid > *,
+  .bento-3 > *,
+  .bento-4 > *,
+  .bento-mixed > *,
+  .tips-grid > *,
+  .reach-grid > *,
+  .stats-grid > *,
+  .events-grid > *,
+  .hotels-grid > *,
+  .issue-types > *,
+  .type-cards > *,
+  .how-grid > * {
+    grid-column: auto !important;
+  }
+}
+
 @media (max-width: 540px) {
   .cards-grid,
   .bento-3,
@@ -339,8 +362,10 @@ textarea {
   .hotels-grid,
   .issue-types,
   .type-cards,
-  .how-grid {
+  .how-grid,
+  .modules-grid {
     grid-template-columns: 1fr !important;
+    grid-auto-columns: 1fr !important;
   }
 }
 

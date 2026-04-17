@@ -520,6 +520,41 @@
       font-size: 1rem;
     }
 
+    /* ── Tourism card (card 4) — full-width feature card ── */
+    .module-card.card-tourism {
+      grid-column: span 2;
+    }
+    .tourism-inner {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: start;
+    }
+    .tourism-tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 72px);
+      gap: 0.75rem;
+      padding-top: 2.5rem;
+    }
+    .tourism-tile {
+      background: rgba(92,61,153,0.2);
+      border: 1px solid rgba(92,61,153,0.3);
+      border-radius: 12px;
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+    .tourism-tile-icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.3rem;
+    }
+    .tourism-tile--more {
+      background: rgba(92,61,153,0.15);
+      border: 1px dashed rgba(92,61,153,0.3);
+      color: rgba(255,255,255,0.2);
+    }
+
     /* ── How it works ── */
     .how-section {
       position: relative; z-index: 2;
@@ -641,30 +676,97 @@
       .admin-menu { margin: 0.5rem 0 0; }
       .admin-menu > summary { width: 100%; justify-content: flex-start; }
       .admin-menu[open] .admin-dropdown { position: static; width: 100%; margin-top: 0.5rem; box-shadow: none; }
-      .hero { padding: 6rem 1.25rem 3rem; min-height: 100vh; }
-      .hero-title { font-size: clamp(2.8rem, 10vw, 5rem); }
-      .modules-grid { grid-template-columns: 1fr; gap: 1rem; }
-      .module-card.card-wide { grid-column: span 1; grid-template-columns: 1fr; }
+      /* Hero: compact, readable, balanced */
+      .hero {
+        padding: 5rem 1.25rem 3rem;
+        min-height: auto;
+      }
+      .hero-title { font-size: clamp(2.1rem, 9vw, 3.2rem); }
+      .hero-desc { font-size: 0.92rem; line-height: 1.55; max-width: 34ch; }
+      .hero-cta { margin-top: 1.25rem; }
+      .hero-cta a, .hero-cta .btn { width: auto; padding: 0.9rem 1.6rem; font-size: 0.92rem; }
+      .hero-scroll { display: none; }
+      /* Decorative hero background — tame on mobile */
+      .mandala-bg { width: 120vw; height: 120vw; opacity: 0.025; }
+      .hero::after { width: 90vw; height: 90vw; top: 25%; }
+
+      /* Modules grid — force true single column even when cards span 2 */
+      .modules-grid {
+        display: grid;
+        grid-template-columns: 1fr !important;
+        grid-auto-columns: 1fr;
+        gap: 1rem;
+      }
+      .modules-grid > .module-card,
+      .module-card.card-wide,
+      .module-card.card-tourism {
+        grid-column: 1 / -1 !important;
+      }
+
+      /* Wide / Tourism cards — stack to single column inner */
+      .module-card.card-wide { grid-template-columns: 1fr; }
       .card-wide .card-visual { display: none; }
+      .tourism-inner { grid-template-columns: 1fr; gap: 1.25rem; }
+      .tourism-tiles {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding-top: 0.5rem;
+        max-width: 100%;
+      }
+
       .module-card { padding: 1.75rem; border-radius: 16px; }
-      .card-title-en { font-size: 1.25rem; }
+      .card-title-en { font-size: 1.2rem; }
+      .card-title-deva { font-size: 1.05rem; }
+      .card-desc { font-size: 0.9rem; }
       .card-tags { display: none; }
-      .section-header { flex-direction: column; align-items: flex-start; gap: 0; }
+
+      .section-header { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
       .section-count { display: none; }
       .section-title { font-size: 1.7rem; }
       .how-steps { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
       .how-step::after { display: none; }
-      .stats-bar { flex-wrap: wrap; }
-      .stat-item { flex: 0 0 50%; border-right: none; border-bottom: 1px solid rgba(255,255,255,.07); padding: 1.25rem; }
+
+      /* Stats bar: 2x2 with breathing room */
+      .stats-bar { flex-wrap: wrap; padding: 1rem 0; }
+      .stat-item {
+        flex: 0 0 50%;
+        max-width: 50%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+        padding: 1rem 0.5rem;
+      }
+      .stat-item:nth-last-child(-n+2) { border-bottom: none; }
+      .stat-num { font-size: 1.6rem; }
+
       footer { flex-direction: column; text-align: center; gap: .75rem; }
       .modules-section { padding: 3rem 1.25rem; }
     }
+
     @media (max-width: 480px) {
-      .hero-title { font-size: clamp(2.2rem, 9vw, 3.5rem); }
-      .hero-subtitle { font-size: .88rem; }
+      .nav { padding: .7rem 1rem; }
+      .nav-logo { font-size: 1rem; letter-spacing: 0; }
+      .hero { padding: 4.5rem 1rem 2.5rem; }
+      .hero-eyebrow { font-size: 0.62rem; letter-spacing: 0.15em; }
+      .hero-title { font-size: clamp(1.9rem, 8.5vw, 2.8rem); line-height: 1.1; }
+      .hero-desc { font-size: 0.88rem; }
       .how-steps { grid-template-columns: 1fr; }
-      .module-card { padding: 1.5rem; }
+      .module-card { padding: 1.4rem; }
       .card-icon { width: 44px; height: 44px; font-size: 1.25rem; }
+      .tourism-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+      .tourism-tile { font-size: 0.62rem; padding: 0.6rem; }
+      .tourism-tile-icon { font-size: 1.2rem; }
+      .modules-section { padding: 2.5rem 1rem; }
+      .stats-bar { padding: 0.5rem 0; }
+      .stat-num { font-size: 1.4rem; }
+      .stat-label { font-size: 0.65rem; }
+    }
+
+    @media (max-width: 360px) {
+      .nav-logo { font-size: 0.92rem; }
+      .hero-title { font-size: 1.8rem; }
+      .hero-desc { font-size: 0.85rem; }
+      .tourism-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .module-card { padding: 1.25rem; }
+      .stat-item { padding: 0.8rem 0.4rem; }
     }
 
     /* ── Custom Cursor ── */
@@ -963,9 +1065,9 @@
       </a>
 
       <!-- Card 4: Nashik Bhatakanti -->
-      <a href="tourism/index.html" class="module-card c-violet" style="grid-column: span 2;">
+      <a href="tourism/index.html" class="module-card c-violet card-tourism">
         <div class="card-glow"></div>
-        <div style="display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: start;">
+        <div class="tourism-inner">
           <div>
             <div class="card-number">04</div>
             <div class="card-icon">🗺️</div>
@@ -988,25 +1090,13 @@
             </span>
           </div>
           <!-- Mini category tiles -->
-          <div style="display: grid; grid-template-columns: repeat(3, 72px); gap: 0.75rem; padding-top: 2.5rem;">
-            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
-              <div style="font-size:1.4rem;margin-bottom:0.3rem;">⛩️</div>Temples
-            </div>
-            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
-              <div style="font-size:1.4rem;margin-bottom:0.3rem;">🏰</div>Forts
-            </div>
-            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
-              <div style="font-size:1.4rem;margin-bottom:0.3rem;">💧</div>Waterfalls
-            </div>
-            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
-              <div style="font-size:1.4rem;margin-bottom:0.3rem;">🧗</div>Adventure
-            </div>
-            <div style="background:rgba(92,61,153,0.2);border:1px solid rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:var(--muted);">
-              <div style="font-size:1.4rem;margin-bottom:0.3rem;">🏛️</div>History
-            </div>
-            <div style="background:rgba(92,61,153,0.15);border:1px dashed rgba(92,61,153,0.3);border-radius:12px;padding:0.75rem;text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.2);">
-              <div style="font-size:1.4rem;margin-bottom:0.3rem;">＋</div>More
-            </div>
+          <div class="tourism-tiles">
+            <div class="tourism-tile"><div class="tourism-tile-icon">⛩️</div>Temples</div>
+            <div class="tourism-tile"><div class="tourism-tile-icon">🏰</div>Forts</div>
+            <div class="tourism-tile"><div class="tourism-tile-icon">💧</div>Waterfalls</div>
+            <div class="tourism-tile"><div class="tourism-tile-icon">🧗</div>Adventure</div>
+            <div class="tourism-tile"><div class="tourism-tile-icon">🏛️</div>History</div>
+            <div class="tourism-tile tourism-tile--more"><div class="tourism-tile-icon">＋</div>More</div>
           </div>
         </div>
       </a>
