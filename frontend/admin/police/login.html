@@ -177,6 +177,7 @@
     }
   </style>
   <script src="../../assets/js/preloader.js"></script>
+  <link rel="stylesheet" href="../../assets/css/responsive.css">
 </head>
 <body>
 
@@ -227,6 +228,9 @@
       window.location.href = 'dashboard.html';
     }
 
+    // Kick the (possibly sleeping) backend awake while the user types.
+    Auth.warmup();
+
     function togglePass() {
       const inp = document.getElementById('password');
       inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -255,11 +259,16 @@
       errAlert.classList.remove('show');
 
       try {
-        await Auth.login(ROLE, username, password);
+        await Auth.login(ROLE, username, password, (attempt, total) => {
+          const label = btn.querySelector('.btn-text');
+          if (label && attempt > 1) label.textContent = `Waking up server… (${attempt}/${total})`;
+        });
         window.location.href = 'dashboard.html';
       } catch (err) {
         errMsg.textContent = err.message || 'Login failed.';
         errAlert.classList.add('show');
+        const label = btn.querySelector('.btn-text');
+        if (label) label.textContent = 'Sign In to Dashboard →';
         btn.classList.remove('loading');
         btn.disabled = false;
       }
