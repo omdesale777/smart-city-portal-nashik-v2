@@ -213,16 +213,6 @@ FRONTEND_URL=http://localhost:5500
 
 ---
 
-## 🎓 Academic Context
-
-| | |
-|--|--|
-| **College** | Late G. N. Sapkal College of Engineering (LGNSCOE), Nashik |
-| **Department** | Computer Engineering |
-| **Event** | Impact of AI in Cybersecurity — Project Presentation |
-| **Guide** | Prof. R. M. Pandav |
-| **Version** | MVP v1.0 |
-
 ---
 
 
