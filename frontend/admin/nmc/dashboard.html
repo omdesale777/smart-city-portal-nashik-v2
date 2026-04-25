@@ -253,9 +253,17 @@
     /* Photos */
     .photo-grid { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
     .photo-thumb {
-      width: 80px; height: 80px; border-radius: 8px;
-      object-fit: cover; border: 1px solid var(--border);
+      width: 80px; height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border);
       cursor: pointer;
+      transition: transform .2s, border-color .2s;
+      display: block;
+    }
+    .photo-thumb:hover {
+      transform: scale(1.05);
+      border-color: var(--teal-lt);
     }
 
     /* Toast */
@@ -408,7 +416,18 @@
     <div class="drawer-field"><div class="drawer-label">Reporter Name</div><div class="drawer-val" id="dName"></div></div>
     <div class="drawer-field"><div class="drawer-label">Phone</div><div class="drawer-val" id="dPhone"></div></div>
     <div class="drawer-field"><div class="drawer-label">Email</div><div class="drawer-val" id="dEmail"></div></div>
-    <div class="drawer-field"><div class="drawer-label">Photos</div><div class="photo-grid" id="dPhotos"></div></div>
+    <div class="drawer-field">
+      <div class="drawer-label">Photos</div>
+      <div class="photo-grid" id="dPhotos"></div>
+      <div id="dPhotosActions" style="margin-top:.5rem; display:none;">
+        <button onclick="openAllPhotos()" style="
+          background: rgba(15,155,142,.1); border: 1px solid rgba(15,155,142,.25);
+          color: var(--teal-lt); border-radius:6px; padding:.4rem .85rem;
+          font-size:.75rem; cursor:pointer; font-family:'DM Sans',sans-serif;">
+          🖼️ Open all photos in new tabs
+        </button>
+      </div>
+    </div>
     <div class="drawer-divider"></div>
     <div class="drawer-field"><div class="drawer-label">Submitted</div><div class="drawer-val" id="dDate"></div></div>
 
@@ -532,6 +551,13 @@
       }
     }
 
+    // ── Open all photos ───────────────────────────────────────────
+    function openAllPhotos() {
+      const r = allData.find(x => x.id === currentDrawerId);
+      if (!r || !r.photos) return;
+      r.photos.forEach(url => window.open(url, '_blank'));
+    }
+
     // ── Drawer ────────────────────────────────────────────────────
     function openDrawer(id) {
       const r = allData.find(x => x.id === id);
@@ -553,9 +579,35 @@
 
       // Photos
       const photosWrap = document.getElementById('dPhotos');
-      photosWrap.innerHTML = (r.photos && r.photos.length)
-        ? r.photos.map(url => `<img class="photo-thumb" src="${url}" alt="photo" onclick="window.open('${url}')" />`).join('')
-        : '<span style="font-size:.78rem;color:var(--muted);">No photos attached</span>';
+      if (r.photos && r.photos.length) {
+        photosWrap.innerHTML = r.photos.map((url, i) => `
+          <div style="position:relative;">
+            <img
+              class="photo-thumb"
+              src="${url}"
+              alt="Photo ${i+1}"
+              onclick="window.open('${url}', '_blank')"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+              style="cursor:pointer;"
+              title="Click to open full image"
+            />
+            <div style="display:none; width:80px; height:80px; border-radius:8px;
+                        border:1px solid var(--border); background:var(--surface2);
+                        align-items:center; justify-content:center; flex-direction:column;
+                        font-size:.6rem; color:var(--muted); gap:.25rem;">
+              <span>🖼️</span><span>No preview</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        photosWrap.innerHTML = '<span style="font-size:.78rem;color:var(--muted);">No photos attached</span>';
+      }
+
+      // Show/hide the "open all" button
+      const photosActions = document.getElementById('dPhotosActions');
+      if (photosActions) {
+        photosActions.style.display = (r.photos && r.photos.length) ? 'block' : 'none';
+      }
 
       document.getElementById('drawer').style.display = 'block';
       document.getElementById('drawerOverlay').classList.add('open');

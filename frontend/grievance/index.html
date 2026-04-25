@@ -876,9 +876,18 @@
           <label>Photo Evidence <span style="color:var(--muted2);text-transform:none;letter-spacing:0;font-size:0.7rem;">(recommended, max 5 photos)</span></label>
           <div class="upload-zone" id="uploadZone">
             <input type="file" id="photoInput" accept="image/*" multiple onchange="handleFileSelect(event)" id="photoInput"/>
-            <div class="upload-icon">📷</div>
-            <div class="upload-text"><strong>Tap to take photo</strong> or upload from gallery</div>
-            <div class="upload-hint">JPG, PNG, WEBP · Max 5MB · GPS location auto-detected from photo</div>
+            <div class="upload-icon">📍📷</div>
+            <div class="upload-text">
+              <strong>Upload a Geotagged Photo</strong> for automatic location detection
+            </div>
+            <div class="upload-hint" style="margin-top:.5rem;">
+              📌 <strong style="color:var(--teal-lt);">How to get a geotagged photo:</strong>
+              Take the photo <em>directly from your phone camera</em> with Location turned ON.
+              The GPS coordinates will be read automatically from the photo.
+            </div>
+            <div class="upload-hint" style="margin-top:.35rem; opacity:.7;">
+              JPG, PNG, WEBP · Max 5MB per photo · Up to 5 photos
+            </div>
           </div>
           <div id="geotag-status" style="display:none; margin-top:.65rem; padding:.5rem .9rem; border-radius:8px; font-size:.76rem; display:none; align-items:center; gap:.5rem;"></div>
           <div class="photo-previews" id="photoPreviews"></div>
@@ -902,6 +911,10 @@
 
         <div class="field-group">
           <label>Location <span class="req">*</span></label>
+          <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem;line-height:1.5;">
+  💡        If you uploaded a geotagged photo in Step 2, this was filled automatically.
+            Otherwise tap <strong>Get Location</strong> or type your address below.
+          </p>
           <div class="location-box" id="locationBox">
             <span class="loc-icon">📍</span>
             <div class="loc-info">
